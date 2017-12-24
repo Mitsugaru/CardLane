@@ -19,6 +19,10 @@ public class Rank
     public static readonly Rank QUEEN = new Rank("Queen", 12);
     public static readonly Rank KING = new Rank("King", 13);
 
+    /// <summary>
+    /// All possible values
+    /// </summary>
+    /// <returns>Enumerable values of Rank object references</returns>
     public static IEnumerable<Rank> Values
     {
         get
@@ -40,9 +44,16 @@ public class Rank
         }
     }
 
+    /// <summary>
+    /// Human readable name
+    /// </summary>
     private readonly string name;
     private readonly int value;
 
+    /// <summary>
+    /// Raw value of the rank
+    /// </summary>
+    /// <returns>Integer value</returns>
     public int Value
     {
         get
