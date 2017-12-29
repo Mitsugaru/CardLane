@@ -46,6 +46,9 @@ public class CardManager : MonoBehaviour
         if (cards.TryGetValue(card, out cardGORef))
         {
             spawned = GameObject.Instantiate(cardGORef);
+
+            CardScript script = spawned.AddComponent<CardScript>();
+            script.Card = card;
         }
         return spawned;
     }
@@ -55,10 +58,14 @@ public class CardManager : MonoBehaviour
         GameObject spawned = null;
 
         List<Card> keys = new List<Card>(cards.Keys);
+        Card chosen = keys[random.Next(keys.Count)];
         GameObject goRef = null;
-        if (cards.TryGetValue(keys[random.Next(keys.Count)], out goRef))
+        if (cards.TryGetValue(chosen, out goRef))
         {
             spawned = GameObject.Instantiate(goRef);
+
+            CardScript script = spawned.AddComponent<CardScript>();
+            script.Card = chosen;
         }
 
         return spawned;
