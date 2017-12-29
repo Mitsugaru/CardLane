@@ -16,7 +16,7 @@ public class ArenaManager : MonoBehaviour
 
     public Lane LaneC;
 
-    private GameObject playerDeck;
+    private GameObject firstCard;
 
     // Use this for initialization
     void Start()
@@ -27,20 +27,8 @@ public class ArenaManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        while (playerDeck == null)
+        while (firstCard == null)
         {
-            playerDeck = cardManager.SpawnCard(new Card(Rank.JOKER, Suit.NONE));
-            if (playerDeck != null)
-            {
-                placeCard(playerDeck, deckArea.PlayerSlot);
-            }
-
-            GameObject opponentDeck = cardManager.SpawnCard(new Card(Rank.JOKER, Suit.NONE));
-            if (opponentDeck != null)
-            {
-                placeCard(opponentDeck, deckArea.OpponentSlot);
-            }
-
             List<Transform> placements = new List<Transform>();
             placements.Add(LaneA.PlayerSlot);
             placements.Add(LaneA.OpponentSlot);
@@ -56,6 +44,7 @@ public class ArenaManager : MonoBehaviour
                 if (card != null)
                 {
                     placeCard(card, placement);
+                    firstCard = card;
                 }
             }
         }
