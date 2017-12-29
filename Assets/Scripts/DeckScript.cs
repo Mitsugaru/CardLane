@@ -15,17 +15,17 @@ public class DeckScript : MonoBehaviour
     void Start()
     {
         //Generate card pool
-        float height = 0.02f;
-        Vector3 cardScale = new Vector3(1f, 1f, 1f);
-        height += 0.02f;
+        float height = 0f;
+        Vector3 cardScale = new Vector3(25f, 25f, 25f);
         for (int i = 0; i < limit; i++)
         {
             GameObject spawn = GameObject.Instantiate(card);
             spawn.transform.SetParent(gameObject.transform);
-            spawn.transform.position = gameObject.transform.position;
-            spawn.transform.rotation = gameObject.transform.rotation;
+            spawn.transform.position = new Vector3(transform.position.x, transform.position.y + height, transform.position.z);
+            spawn.transform.rotation = Quaternion.Euler(-90f, 90f, 0f);
             spawn.transform.localScale = cardScale;
             spawnedCards.Add(spawn);
+            height += 0.01f;
         }
     }
 
@@ -36,13 +36,13 @@ public class DeckScript : MonoBehaviour
         {
             card.SetActive(true);
         }
-
-        spawnedCards.Reverse();
     }
 
     public void drawCard()
     {
-        foreach (GameObject card in spawnedCards)
+        List<GameObject> cards = new List<GameObject>(spawnedCards);
+        cards.Reverse();
+        foreach (GameObject card in cards)
         {
             if (card.activeSelf)
             {
@@ -51,6 +51,8 @@ public class DeckScript : MonoBehaviour
             }
         }
     }
+
+    // TODO method to change limit programmatically and adjust the pool of gameobjects
 
     // Update is called once per frame
     void Update()
