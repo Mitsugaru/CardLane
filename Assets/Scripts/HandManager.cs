@@ -50,10 +50,24 @@ public class HandManager : MonoBehaviour
 
     private void handleTouch()
     {
+        bool hitHand = false;
         // Look for all fingers
         for (int i = 0; i < Input.touchCount; i++)
         {
             Touch touch = Input.GetTouch(i);
+
+            GameObject card = detectHandCardHit(Camera.main.ScreenPointToRay(touch.position));
+            if(card != null)
+            {
+                selectCard(card);
+                hitHand = true;
+            }
+        }
+
+        if(!hitHand)
+        {
+            //TODO if hand card was already selected, check if a lane was selected
+            //TODO handle hand deselection here
         }
     }
 
@@ -64,13 +78,12 @@ public class HandManager : MonoBehaviour
             GameObject card = detectHandCardHit(Camera.main.ScreenPointToRay(Input.mousePosition));
             if(card != null)
             {
-                string cardName = card.name;
-                CardScript script = card.GetComponent<CardScript>();
-                if (script != null)
-                {
-                    cardName = script.Card.ToString();
-                }
-                Debug.Log("Clicked card: " + cardName);
+                selectCard(card);
+            }
+            else
+            {
+                //TODO check if a lane was selected
+                //TODO otherwise, deselect hand card
             }
         }
     }
@@ -91,5 +104,17 @@ public class HandManager : MonoBehaviour
         }
 
         return target;
+    }
+
+    private void selectCard(GameObject card)
+    {
+        //TODO select the card
+        string cardName = card.name;
+        CardScript script = card.GetComponent<CardScript>();
+        if (script != null)
+        {
+            cardName = script.Card.ToString();
+        }
+        Debug.Log("Clicked card: " + cardName);
     }
 }
