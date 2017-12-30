@@ -97,19 +97,27 @@ public class GameController : MonoBehaviour
 
     private IEnumerator initialHandDraw()
     {
+        float delay = 0.3f;
+        if(Application.platform != RuntimePlatform.WindowsPlayer
+            || Application.platform != RuntimePlatform.WindowsEditor
+            || Application.platform != RuntimePlatform.OSXPlayer
+            || Application.platform != RuntimePlatform.OSXEditor)
+        {
+            delay = 0.4f;
+        }
         for (int i = 0; i < 5; i++)
         {
             Card playerCard = playerDeck.Draw();
             GameObject playerCardGameObject = cardManager.SpawnCard(playerCard);
             playerHand.AddCard(playerCardGameObject);
             visualPlayerDeck.DrawCard();
-            yield return new WaitForSeconds(0.4f);
+            yield return new WaitForSeconds(delay);
 
             Card opponentCard = opponentDeck.Draw();
             GameObject opponentCardGameObject = cardManager.SpawnCard(opponentCard);
             opponentHand.AddCard(opponentCardGameObject);
             visualOpponentDeck.DrawCard();
-            yield return new WaitForSeconds(0.4f);
+            yield return new WaitForSeconds(delay);
         }
     }
 

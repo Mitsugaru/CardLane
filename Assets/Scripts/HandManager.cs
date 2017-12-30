@@ -184,45 +184,50 @@ public class HandManager : MonoBehaviour
 
     private void handleTouch()
     {
+        bool hadTouch = Input.touchCount > 0;
         bool hitHand = false;
+        bool hitLane = false;
         // Look for all fingers
         for (int i = 0; i < Input.touchCount; i++)
         {
             Touch touch = Input.GetTouch(i);
-
-            GameObject card = detectHandCardHit(Camera.main.ScreenPointToRay(touch.position));
+            Ray ray = Camera.main.ScreenPointToRay(touch.position);
+            GameObject card = detectHandCardHit(ray);
             if (card != null)
             {
                 selectCard(card);
                 hitHand = true;
             }
 
-            if (!hitHand)
+            if (!hitHand && selectedCard != null && !hitLane)
             {
-                //TODO if hand card was already selected, check if a lane was selected
-                //TODO handle hand deselection here
-                selectLapse = 0f;
-                selectedCard = null;
-                highlightManager.select(null);
+                //if hand card was already selected, check if a lane was selected
+                hitLane = detectHitLane(ray);
             }
         }
 
-
+        if(hadTouch && !hitHand && !hitLane)
+        {
+            //handle hand deselection here
+            selectLapse = 0f;
+            selectedCard = null;
+            highlightManager.select(null);
+        }
     }
 
     private void handleMouseAndKeyboard()
     {
-        GameObject card = detectHandCardHit(Camera.main.ScreenPointToRay(Input.mousePosition));
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        GameObject card = detectHandCardHit(ray);
         if (Input.GetMouseButtonDown(0))
         {
             if (card != null)
             {
                 selectCard(card);
             }
-            else
+            else if(selectedCard != null && !detectHitLane(ray))
             {
-                //TODO check if a lane was selected
-                //TODO otherwise, deselect hand card
+                //Deselect hand card
                 selectLapse = 0f;
                 selectedCard = null;
                 highlightManager.select(null);
@@ -261,6 +266,12 @@ public class HandManager : MonoBehaviour
         }
 
         return target;
+    }
+
+    private bool detectHitLane(Ray ray)
+    {
+        RaycastHit[] hits = Physics.RaycastAll(ray, float.MaxValue, LayerMask.GetMask("Lane"));
+        return hits.Length > 0;
     }
 
     private void selectCard(GameObject card)
