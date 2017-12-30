@@ -43,7 +43,7 @@ public class HandManager : MonoBehaviour
         {
             handleTouch();
         }
-        else if(enableInput)
+        else if (enableInput)
         {
             handleMouseAndKeyboard();
         }
@@ -59,7 +59,7 @@ public class HandManager : MonoBehaviour
                 int magnitude = 1;
                 float distance = 0.8f;
                 //TODO it'd be cool if the order of the cards was correct based on positioning
-                for(int i = 0; i < cards.Count; i++)
+                for (int i = 0; i < cards.Count; i++)
                 {
                     Vector3 currentPosition = cards[i].transform.localPosition;
 
@@ -75,7 +75,7 @@ public class HandManager : MonoBehaviour
 
                     cards[i].transform.localPosition = Vector3.Lerp(currentPosition, targetPosition, moveLapse);
 
-                    if(flip)
+                    if (flip)
                     {
                         targetPosition.z = magnitude * distance;
                         flip = false;
@@ -93,7 +93,7 @@ public class HandManager : MonoBehaviour
             if (selectLapse < 1f)
             {
                 // foreach card that isn't selected, ensure that their transform is lerped back to "normal"
-                for(int i = 0; i < cards.Count; i++)
+                for (int i = 0; i < cards.Count; i++)
                 {
                     Vector3 currentPosition = cards[i].transform.localPosition;
                     Vector3 targetPosition = cards[i].transform.localPosition;
@@ -115,19 +115,36 @@ public class HandManager : MonoBehaviour
 
     public void AddCard(GameObject card)
     {
-        moveLapse = 0f;
-        selectLapse = 0f;
+        CardScript script = card.GetComponent<CardScript>();
+        if (script != null)
+        {
+            moveLapse = 0f;
+            selectLapse = 0f;
 
-        card.transform.parent = gameObject.transform;
-        card.transform.position = gameObject.transform.position;
-        card.transform.localScale = new Vector3(scalingFactor, scalingFactor, scalingFactor);
-        card.transform.rotation = handAngle;
-        card.layer = LayerMask.NameToLayer("Card");
-        card.AddComponent<BoxCollider>();
+            card.transform.parent = gameObject.transform;
+            card.transform.position = gameObject.transform.position;
+            card.transform.localScale = new Vector3(scalingFactor, scalingFactor, scalingFactor);
+            card.transform.rotation = handAngle;
+            card.layer = LayerMask.NameToLayer("Card");
 
-        cards.Add(card);
+            //Special case for Joker because its a complex prefab
+            if (script.Card.Rank != Rank.JOKER)
+            {
+                card.AddComponent<BoxCollider>();
+            }
+            else
+            {
+                foreach (Transform child in card.transform)
+                {
+                    child.gameObject.AddComponent<BoxCollider>();
+                    child.gameObject.layer = LayerMask.NameToLayer("Card");
+                }
+            }
 
-        cards.Sort(cardCompare);
+            cards.Add(card);
+
+            cards.Sort(cardCompare);
+        }
     }
 
     public void RemoveCard(GameObject card)
@@ -211,7 +228,7 @@ public class HandManager : MonoBehaviour
             // add a hover effect on what would be the current selection
             highlightManager.select(card.transform);
         }
-        else if(selectedCard == null)
+        else if (selectedCard == null)
         {
             // remove hover effect
             highlightManager.select(null);
@@ -231,6 +248,11 @@ public class HandManager : MonoBehaviour
                 target = hits[i].transform.gameObject;
                 break;
             }
+            else if (hits[i].transform.parent.parent != null && hits[i].transform.parent.parent.Equals(gameObject.transform))
+            {
+                //Case for Jokers
+                target = hits[i].transform.parent.gameObject;
+            }
         }
 
         return target;
@@ -239,6 +261,12 @@ public class HandManager : MonoBehaviour
     private void selectCard(GameObject card)
     {
         CardScript script = card.GetComponent<CardScript>();
+        if (script == null)
+        {
+            // Try the parent object if possible,
+            // as in the case for Joker
+            script = card.transform.parent.gameObject.GetComponent<CardScript>();
+        }
         if (script != null)
         {
             selectedCard = card;
