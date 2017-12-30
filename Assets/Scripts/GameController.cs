@@ -81,6 +81,6 @@ public class GameController : MonoBehaviour {
         redList.AddRange(generateCardsForSuit(Suit.DIAMONDS));
         redList.AddRange(generateCardsForSuit(Suit.HEARTS));
         blackList.AddRange(generateCardsForSuit(Suit.CLUBS));
-        blackList.AddRange(generateCardsForSuit(Suit.CLUBS));
+        blackList.AddRange(generateCardsForSuit(Suit.SPADES));
     }
 }
