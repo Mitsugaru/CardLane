@@ -41,7 +41,7 @@ public class PlayerDeck
     /// <summary>
     /// Random instance
     /// </summary>
-    private System.Random random = new System.Random();
+    private static System.Random random = new System.Random();
 
     /// <summary>
     /// Constructor
@@ -154,12 +154,23 @@ public class PlayerDeck
         }
     }
 
+    public void Clear()
+    {
+        cards.Clear();
+        inDeck.Clear();
+    }
+
     /// <summary>
     /// Draw a card from the deck
     /// </summary>
     /// <returns>The card that was drawn</returns>
     public Card Draw()
     {
-        return inDeck.Dequeue();
+        Card card = null;
+        if(inDeck.Count > 0)
+        {
+            card = inDeck.Dequeue();
+        }
+        return card;
     }
 }
