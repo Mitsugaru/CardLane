@@ -7,9 +7,15 @@ public class DeckScript : MonoBehaviour
 
     public GameObject card;
 
-    public int limit = 26;
+    public int limit = 27;
+
+    public AudioSource audioSource;
+
+    public AudioClip[] drawSounds;
 
     private List<GameObject> spawnedCards = new List<GameObject>();
+
+    private System.Random random = new System.Random();
 
     // Use this for initialization
     void Start()
@@ -20,6 +26,7 @@ public class DeckScript : MonoBehaviour
         for (int i = 0; i < limit; i++)
         {
             GameObject spawn = GameObject.Instantiate(card);
+            spawn.SetActive(false);
             spawn.transform.SetParent(gameObject.transform);
             spawn.transform.position = new Vector3(transform.position.x, transform.position.y + height, transform.position.z);
             spawn.transform.rotation = Quaternion.Euler(-90f, 90f, 0f);
@@ -29,7 +36,7 @@ public class DeckScript : MonoBehaviour
         }
     }
 
-    public void spawnDeck()
+    public void SpawnDeck()
     {
         // Deactivate cards and reposition them
         foreach (GameObject card in spawnedCards)
@@ -38,7 +45,7 @@ public class DeckScript : MonoBehaviour
         }
     }
 
-    public void drawCard()
+    public void DrawCard()
     {
         List<GameObject> cards = new List<GameObject>(spawnedCards);
         cards.Reverse();
@@ -47,8 +54,17 @@ public class DeckScript : MonoBehaviour
             if (card.activeSelf)
             {
                 card.SetActive(false);
+                playSound();
                 break;
             }
+        }
+    }
+
+    private void playSound()
+    {
+        if(audioSource != null && drawSounds.Length > 0)
+        {
+            audioSource.PlayOneShot(drawSounds[random.Next(drawSounds.Length)]);
         }
     }
 

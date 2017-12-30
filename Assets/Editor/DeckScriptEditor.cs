@@ -12,11 +12,11 @@ public class DeckScriptEditor : Editor
         DeckScript script = (DeckScript)target;
         if (GUILayout.Button("Draw"))
         {
-            script.drawCard();
+            script.DrawCard();
         }
         if (GUILayout.Button("Spawn"))
         {
-            script.spawnDeck();
+            script.SpawnDeck();
         }
     }
 }
