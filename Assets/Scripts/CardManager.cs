@@ -80,6 +80,7 @@ public class CardManager : MonoBehaviour
 
         Animation animation = go.AddComponent<Animation>();
         animation.clip = cardFlipAnimation;
+        animation.playAutomatically = false;
 
         AudioSource audio = go.AddComponent<AudioSource>();
         audio.playOnAwake = false;
