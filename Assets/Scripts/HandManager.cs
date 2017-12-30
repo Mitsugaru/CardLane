@@ -196,13 +196,18 @@ public class HandManager : MonoBehaviour
                 selectCard(card);
                 hitHand = true;
             }
+
+            if (!hitHand)
+            {
+                //TODO if hand card was already selected, check if a lane was selected
+                //TODO handle hand deselection here
+                selectLapse = 0f;
+                selectedCard = null;
+                highlightManager.select(null);
+            }
         }
 
-        if (!hitHand)
-        {
-            //TODO if hand card was already selected, check if a lane was selected
-            //TODO handle hand deselection here
-        }
+
     }
 
     private void handleMouseAndKeyboard()
