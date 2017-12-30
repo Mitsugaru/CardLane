@@ -5,6 +5,10 @@ using UnityEngine;
 public class CardManager : MonoBehaviour
 {
 
+    public AnimationClip cardFlipAnimation;
+
+    public AudioClip cardFlipAudio;
+
     public CardIDPair[] ids;
 
     private Dictionary<Card, GameObject> cards = new Dictionary<Card, GameObject>();
@@ -47,8 +51,7 @@ public class CardManager : MonoBehaviour
         {
             spawned = GameObject.Instantiate(cardGORef);
 
-            CardScript script = spawned.AddComponent<CardScript>();
-            script.Card = card;
+            configureCardComponents(spawned, card);
         }
         return spawned;
     }
@@ -64,10 +67,22 @@ public class CardManager : MonoBehaviour
         {
             spawned = GameObject.Instantiate(goRef);
 
-            CardScript script = spawned.AddComponent<CardScript>();
-            script.Card = chosen;
+            configureCardComponents(spawned, chosen);
         }
 
         return spawned;
+    }
+
+    private void configureCardComponents(GameObject go, Card card)
+    {
+        CardScript script = go.AddComponent<CardScript>();
+        script.Card = card;
+
+        Animation animation = go.AddComponent<Animation>();
+        animation.clip = cardFlipAnimation;
+
+        AudioSource audio = go.AddComponent<AudioSource>();
+        audio.playOnAwake = false;
+        audio.clip = cardFlipAudio;
     }
 }
