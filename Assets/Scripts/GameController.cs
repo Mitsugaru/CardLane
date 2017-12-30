@@ -25,6 +25,8 @@ public class GameController : MonoBehaviour
 
     private bool addJokers = true;
 
+    private bool first = false;
+
     // Use this for initialization
     void Start()
     {
@@ -35,7 +37,11 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if(cardManager.Ready && !first)
+        {
+            NewGame();
+            first = true;
+        }
     }
 
     public void NewGame()
@@ -97,13 +103,13 @@ public class GameController : MonoBehaviour
             GameObject playerCardGameObject = cardManager.SpawnCard(playerCard);
             playerHand.AddCard(playerCardGameObject);
             visualPlayerDeck.DrawCard();
-            yield return new WaitForSeconds(0.3f);
+            yield return new WaitForSeconds(0.4f);
 
             Card opponentCard = opponentDeck.Draw();
             GameObject opponentCardGameObject = cardManager.SpawnCard(opponentCard);
             opponentHand.AddCard(opponentCardGameObject);
             visualOpponentDeck.DrawCard();
-            yield return new WaitForSeconds(0.3f);
+            yield return new WaitForSeconds(0.4f);
         }
     }
 

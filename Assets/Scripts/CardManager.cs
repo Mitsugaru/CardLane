@@ -11,6 +11,16 @@ public class CardManager : MonoBehaviour
 
     public CardIDPair[] ids;
 
+    private bool readyFlag = false;
+
+    public bool Ready
+    {
+        get
+        {
+            return readyFlag;
+        }
+    }
+
     private Dictionary<Card, GameObject> cards = new Dictionary<Card, GameObject>();
 
     private System.Random random = new System.Random();
@@ -34,6 +44,7 @@ public class CardManager : MonoBehaviour
                 }
             }
         }
+        readyFlag = true;
     }
 
     // Update is called once per frame
