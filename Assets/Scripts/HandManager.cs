@@ -223,7 +223,7 @@ public class HandManager : MonoBehaviour
         {
             Touch touch = Input.GetTouch(i);
             Ray ray = Camera.main.ScreenPointToRay(touch.position);
-            GameObject card = detectHandCardHit(ray);
+            GameObject card = HitUtils.detectHandCardHit(ray, gameObject.transform);
             if (card != null)
             {
                 selectCard(card);
@@ -233,8 +233,7 @@ public class HandManager : MonoBehaviour
             if (!hitHand && selectedCard != null && !hitLane)
             {
                 //if hand card was already selected, check if a lane was selected
-                lane = detectHitLane(ray);
-                hitLane = lane != null;
+                hitLane = HitUtils.detectHitLane(ray, out lane);
             }
         }
 
@@ -254,23 +253,24 @@ public class HandManager : MonoBehaviour
     private void handleMouseAndKeyboard()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        GameObject card = detectHandCardHit(ray);
+        GameObject card = HitUtils.detectHandCardHit(ray, gameObject.transform);
         if (Input.GetMouseButtonDown(0))
         {
-            GameObject lane = detectHitLane(ray);
+            GameObject lane = null;
+            bool hitLane = HitUtils.detectHitLane(ray, out lane);
 
             if (card != null)
             {
                 selectCard(card);
             }
-            else if (selectedCard != null && lane == null)
+            else if (selectedCard != null && !hitLane)
             {
                 //Deselect hand card
                 selectLapse = 0f;
                 selectedCard = null;
                 highlightManager.select(null);
             }
-            else if (lane != null)
+            else if (hitLane)
             {
                 tryPlayCard(lane);
             }
@@ -285,42 +285,6 @@ public class HandManager : MonoBehaviour
             // remove hover effect
             highlightManager.select(null);
         }
-    }
-
-    private GameObject detectHandCardHit(Ray ray)
-    {
-        GameObject target = null;
-
-        RaycastHit[] hits = Physics.RaycastAll(ray, float.MaxValue, LayerMask.GetMask("Card"));
-        for (int i = 0; i < hits.Length; i++)
-        {
-            //Check that the card touched has parent transform of hand
-            if (hits[i].transform.parent.Equals(gameObject.transform))
-            {
-                target = hits[i].transform.gameObject;
-                break;
-            }
-            else if (hits[i].transform.parent.parent != null && hits[i].transform.parent.parent.Equals(gameObject.transform))
-            {
-                //Case for Jokers
-                target = hits[i].transform.parent.gameObject;
-            }
-        }
-
-        return target;
-    }
-
-    private GameObject detectHitLane(Ray ray)
-    {
-        GameObject lane = null;
-        RaycastHit[] hits = Physics.RaycastAll(ray, float.MaxValue, LayerMask.GetMask("Lane"));
-
-        if (hits.Length > 0)
-        {
-            lane = hits[0].transform.parent.gameObject;
-        }
-
-        return lane;
     }
 
     private void tryPlayCard(GameObject lane)
