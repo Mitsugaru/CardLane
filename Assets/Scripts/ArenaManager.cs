@@ -20,12 +20,17 @@ public class ArenaManager : MonoBehaviour
 
     public AudioClip[] placeSounds;
 
+    private IList<Lane> lanes;
+
     private System.Random random = new System.Random();
 
     // Use this for initialization
     void Start()
     {
-
+        lanes = new List<Lane>();
+        lanes.Add(LaneA);
+        lanes.Add(LaneB);
+        lanes.Add(LaneC);
     }
 
     // Update is called once per frame
@@ -65,6 +70,11 @@ public class ArenaManager : MonoBehaviour
             }
             placement.DetachChildren();
         }
+    }
+
+    public IList<Lane> getLanes()
+    {
+        return lanes;
     }
 
     private IList<Transform> generatePlacements()
