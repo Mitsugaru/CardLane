@@ -86,7 +86,7 @@ public class ArenaManager : MonoBehaviour
         return placements;
     } 
 
-    private void placeCard(GameObject card, Transform parent)
+    public void placeCard(GameObject card, Transform parent)
     {
         float scalingFactor = 25f;
         card.transform.parent = parent;

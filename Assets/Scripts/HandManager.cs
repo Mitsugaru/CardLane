@@ -8,12 +8,22 @@ public class HandManager : MonoBehaviour
     //TODO inject later
     public CardManager cardManager;
 
+    public ArenaManager arenaManager;
+
     public HighlightManager highlightManager;
 
     public bool enableInput = true;
 
     [Range(-0.1f, -0.5f)]
     public float selectionDistance = -0.3f;
+
+    public int Count
+    {
+        get
+        {
+            return cards.Count;
+        }
+    }
 
     private Quaternion handAngle;
 
@@ -153,6 +163,10 @@ public class HandManager : MonoBehaviour
         {
             cards.Sort(cardCompare);
             moveLapse = 0f;
+            if(selectedCard == card)
+            {
+                ClearSelection();
+            }
         }
     }
 
@@ -177,6 +191,22 @@ public class HandManager : MonoBehaviour
         selectLapse = 0f;
     }
 
+    public IList<Card> GetCards()
+    {
+        List<Card> cardList = new List<Card>();
+
+        foreach (GameObject card in cards)
+        {
+            CardScript script = card.GetComponent<CardScript>();
+            if (script != null)
+            {
+                cardList.Add(script.Card);
+            }
+        }
+
+        return cardList;
+    }
+
     public GameObject GetSelectedCard()
     {
         return selectedCard;
@@ -187,6 +217,7 @@ public class HandManager : MonoBehaviour
         bool hadTouch = Input.touchCount > 0;
         bool hitHand = false;
         bool hitLane = false;
+        GameObject lane = null;
         // Look for all fingers
         for (int i = 0; i < Input.touchCount; i++)
         {
@@ -202,11 +233,16 @@ public class HandManager : MonoBehaviour
             if (!hitHand && selectedCard != null && !hitLane)
             {
                 //if hand card was already selected, check if a lane was selected
-                hitLane = detectHitLane(ray);
+                lane = detectHitLane(ray);
+                hitLane = lane != null;
             }
         }
 
-        if(hadTouch && !hitHand && !hitLane)
+        if (hadTouch && hitLane)
+        {
+            tryPlayCard(lane);
+        }
+        if (hadTouch && !hitHand && !hitLane)
         {
             //handle hand deselection here
             selectLapse = 0f;
@@ -221,16 +257,22 @@ public class HandManager : MonoBehaviour
         GameObject card = detectHandCardHit(ray);
         if (Input.GetMouseButtonDown(0))
         {
+            GameObject lane = detectHitLane(ray);
+
             if (card != null)
             {
                 selectCard(card);
             }
-            else if(selectedCard != null && !detectHitLane(ray))
+            else if (selectedCard != null && lane == null)
             {
                 //Deselect hand card
                 selectLapse = 0f;
                 selectedCard = null;
                 highlightManager.select(null);
+            }
+            else if (lane != null)
+            {
+                tryPlayCard(lane);
             }
         }
         else if (card != null && selectedCard == null)
@@ -268,10 +310,48 @@ public class HandManager : MonoBehaviour
         return target;
     }
 
-    private bool detectHitLane(Ray ray)
+    private GameObject detectHitLane(Ray ray)
     {
+        GameObject lane = null;
         RaycastHit[] hits = Physics.RaycastAll(ray, float.MaxValue, LayerMask.GetMask("Lane"));
-        return hits.Length > 0;
+
+        if (hits.Length > 0)
+        {
+            lane = hits[0].transform.parent.gameObject;
+        }
+
+        return lane;
+    }
+
+    private void tryPlayCard(GameObject lane)
+    {
+        Lane laneScript = lane.GetComponent<Lane>();
+        if (laneScript != null && selectedCard != null)
+        {
+            if(laneScript.setCard(selectedCard, Lane.Slot.PLAYER))
+            {
+                arenaManager.placeCard(selectedCard, laneScript.PlayerSlot);
+                RemoveCard(selectedCard);
+            }
+        }
+    }
+
+    public void selectCard(Card card)
+    {
+        foreach (GameObject target in cards)
+        {
+            CardScript script = target.GetComponent<CardScript>();
+            if (script == null)
+            {
+                // Try the parent object if possible,
+                // as in the case for Joker
+                script = target.transform.parent.gameObject.GetComponent<CardScript>();
+            }
+            if (script != null && script.Card.Equals(card))
+            {
+                selectedCard = target;
+            }
+        }
     }
 
     private void selectCard(GameObject card)
