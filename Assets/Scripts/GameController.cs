@@ -5,6 +5,8 @@ using UnityEngine;
 public class GameController : MonoBehaviour
 {
 
+    public UIManager uiManager;
+
     public CardManager cardManager;
 
     public ArenaManager arenaManager;
@@ -169,7 +171,7 @@ public class GameController : MonoBehaviour
                     {
                         selectionTime = 0f;
                         mouseDown = false;
-                        
+
                         selectedLane = laneGo.GetComponent<Lane>();
                         if (selectedLane != null
                             && selectedLane.PlayerCard != null
@@ -405,10 +407,42 @@ public class GameController : MonoBehaviour
                         waitTime = 0f;
                     }
                 }
-
-                if (selectedLane == null)
+                else
                 {
-                    //TODO true end, figure out winner
+                    //true end, figure out winner
+                    int playerLanes = 0;
+                    int opponentLanes = 0;
+
+                    foreach (Lane lane in arenaManager.getLanes())
+                    {
+                        //TODO highlight the lane to the winner
+                        if (lane.playerPoints > lane.opponentPoints)
+                        {
+                            playerLanes++;
+                        }
+                        else if (lane.playerPoints < lane.opponentPoints)
+                        {
+                            opponentLanes++;
+                        }
+                    }
+
+                    if (playerLanes > opponentLanes)
+                    {
+                        uiManager.gameResultLabel.text = "You Win";
+                        uiManager.gameResultLabel.color = Color.green;
+                    }
+                    else if (opponentLanes > playerLanes)
+                    {
+                        uiManager.gameResultLabel.text = "You Lose";
+                        uiManager.gameResultLabel.color = Color.red;
+                    }
+                    else
+                    {
+                        uiManager.gameResultLabel.text = "Draw";
+                        uiManager.gameResultLabel.color = Color.black;
+                    }
+
+                    gameLoop = false;
                 }
             }
 
@@ -445,6 +479,8 @@ public class GameController : MonoBehaviour
         endState = false;
         selectionTime = 0f;
         waitTime = 0f;
+        uiManager.gameResultLabel.text = "";
+        uiManager.gameResultLabel.color = Color.black;
 
         //TODO check if this is a rematch, if so, auto switch colors
 
