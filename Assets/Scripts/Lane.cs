@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Lane : MonoBehaviour
 {
@@ -11,6 +12,18 @@ public class Lane : MonoBehaviour
     public Transform playerStockpile;
 
     public Transform opponentStockpile;
+
+    public Text playerLabel;
+
+    public Text opponentLabel;
+
+    public int playerPoints = 0;
+
+    public int opponentPoints = 0;
+
+    private int currentPlayerPoints = -1;
+
+    private int currentOpponentPoints = -1;
 
     private GameObject playerCard;
 
@@ -32,11 +45,39 @@ public class Lane : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        if (currentPlayerPoints != playerPoints && playerLabel != null)
+        {
+            currentPlayerPoints = playerPoints;
+            if (currentPlayerPoints != 0)
+            {
+                playerLabel.text = currentPlayerPoints.ToString();
+            }
+            else
+            {
+                playerLabel.text = "";
+            }
+        }
+        if (currentOpponentPoints != opponentPoints && opponentLabel != null)
+        {
+            currentOpponentPoints = opponentPoints;
+            if (currentOpponentPoints != 0)
+            {
+                opponentLabel.text = currentOpponentPoints.ToString();
+            }
+            else
+            {
+                opponentLabel.text = "";
+            }
+        }
+    }
+
     public bool setCard(GameObject card, Slot slot)
     {
         bool set = false;
 
-        switch(slot)
+        switch (slot)
         {
             case Slot.PLAYER:
                 if (playerCard == null)
@@ -47,7 +88,7 @@ public class Lane : MonoBehaviour
                 }
                 break;
             case Slot.OPPONENT:
-                if(opponentCard == null)
+                if (opponentCard == null)
                 {
                     opponentCard = card;
                     card.transform.parent = OpponentSlot;
