@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class CardManager : MonoBehaviour
 {
@@ -8,6 +9,8 @@ public class CardManager : MonoBehaviour
     public AnimationClip cardFlipAnimation;
 
     public AudioClip cardFlipAudio;
+
+    public AudioMixerGroup mixerGroup;
 
     public CardIDPair[] ids;
 
@@ -90,11 +93,12 @@ public class CardManager : MonoBehaviour
         script.Card = card;
 
         Animation animation = go.AddComponent<Animation>();
-        animation.clip = cardFlipAnimation;
+        animation.AddClip(cardFlipAnimation, "CardFlip");
         animation.playAutomatically = false;
 
         AudioSource audio = go.AddComponent<AudioSource>();
         audio.playOnAwake = false;
         audio.clip = cardFlipAudio;
+        audio.outputAudioMixerGroup = mixerGroup;
     }
 }
