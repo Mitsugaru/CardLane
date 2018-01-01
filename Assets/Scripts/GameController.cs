@@ -53,6 +53,8 @@ public class GameController : MonoBehaviour
 
     private float waitTime = 0f;
 
+    private bool stockpileDrawPhase = false;
+
     private bool fillPhase = false;
 
     private bool endState = false;
@@ -208,6 +210,7 @@ public class GameController : MonoBehaviour
                         else if (stockpileRule)
                         {
                             // handle stockpile maneuver here
+                            stockpileDrawPhase = true;
                             destroy = false;
                             arenaManager.placeStockpile(selectedLane.removeCard(Lane.Slot.PLAYER), selectedLane.playerStockpile);
                             arenaManager.placeStockpile(selectedLane.removeCard(Lane.Slot.OPPONENT), selectedLane.opponentStockpile);
@@ -227,11 +230,39 @@ public class GameController : MonoBehaviour
                             {
                                 GameObject.Destroy(child.gameObject);
                             }
+                            fillPhase = true;
                         }
 
                         revealPhase = false;
-                        fillPhase = true;
                         waitTime = 0f;
+                    }
+                }
+
+                if (stockpileDrawPhase)
+                {
+                    bool playerReady = false;
+                    bool opponentReady = false;
+                    if (playerHand.Count < 5 && playerDeck.Deck.Count > 0)
+                    {
+                        StartCoroutine(playerHandDraw(delay * 2));
+                    }
+                    else
+                    {
+                        playerReady = true;
+                    }
+                    if (opponentHand.Count < 5 && opponentDeck.Deck.Count > 0)
+                    {
+                        StartCoroutine(opponentHandDraw(delay * 2));
+                    }
+                    else
+                    {
+                        opponentReady = true;
+                    }
+
+                    if (playerReady && opponentReady)
+                    {
+                        stockpileDrawPhase = false;
+                        fillPhase = true;
                     }
                 }
 
@@ -317,6 +348,7 @@ public class GameController : MonoBehaviour
                         else if (stockpileRule)
                         {
                             destroy = false;
+                            stockpileDrawPhase = true;
                             arenaManager.placeStockpile(selectedLane.removeCard(Lane.Slot.PLAYER), selectedLane.playerStockpile);
                             arenaManager.placeStockpile(selectedLane.removeCard(Lane.Slot.OPPONENT), selectedLane.opponentStockpile);
                         }
@@ -335,11 +367,40 @@ public class GameController : MonoBehaviour
                             {
                                 GameObject.Destroy(child.gameObject);
                             }
+
+                            fillPhase = true;
                         }
 
                         revealPhase = false;
-                        fillPhase = true;
                         waitTime = 0f;
+                    }
+                }
+
+                if (stockpileDrawPhase)
+                {
+                    bool playerReady = false;
+                    bool opponentReady = false;
+                    if (playerHand.Count < 5 && playerDeck.Deck.Count > 0)
+                    {
+                        StartCoroutine(playerHandDraw(delay * 2));
+                    }
+                    else
+                    {
+                        playerReady = true;
+                    }
+                    if (opponentHand.Count < 5 && opponentDeck.Deck.Count > 0)
+                    {
+                        StartCoroutine(opponentHandDraw(delay * 2));
+                    }
+                    else
+                    {
+                        opponentReady = true;
+                    }
+
+                    if (playerReady && opponentReady)
+                    {
+                        stockpileDrawPhase = false;
+                        fillPhase = true;
                     }
                 }
 
@@ -369,7 +430,7 @@ public class GameController : MonoBehaviour
             }
             else
             {
-                //TODO reveal and resolve the remaining cards
+                // reveal and resolve the remaining cards
                 // on the table
                 if (laneSelectionPhase)
                 {
@@ -418,7 +479,14 @@ public class GameController : MonoBehaviour
                         // remove cards from lane slots
                         GameObject.Destroy(selectedLane.removeCard(Lane.Slot.PLAYER));
                         GameObject.Destroy(selectedLane.removeCard(Lane.Slot.OPPONENT));
-                        //TODO remove cards from stockpile
+                        foreach (Transform child in selectedLane.playerStockpile)
+                        {
+                            GameObject.Destroy(child.gameObject);
+                        }
+                        foreach (Transform child in selectedLane.opponentStockpile)
+                        {
+                            GameObject.Destroy(child.gameObject);
+                        }
 
                         revealPhase = false;
                         laneSelectionPhase = true;
@@ -489,6 +557,7 @@ public class GameController : MonoBehaviour
         drawPhase = false;
         mouseDown = false;
         laneSelectionPhase = false;
+        stockpileDrawPhase = false;
         revealPhase = false;
         fillPhase = false;
         selectedLane = null;
