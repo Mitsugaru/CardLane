@@ -31,8 +31,6 @@ public class GameController : MonoBehaviour
 
     private bool addJokers = true;
 
-    private bool first = false;
-
     private bool waitForInitialLaneFill = false;
 
     private bool gameLoop = false;
@@ -78,12 +76,6 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!first && cardManager.Ready)
-        {
-            NewGame();
-            first = true;
-        }
-
         // Start setup portion of game
         if (waitForInitialLaneFill)
         {
@@ -455,18 +447,15 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void NewGame()
+    public void EndGame()
     {
-        //TODO detect if there is a current game already and ask if player wants to abandon current
-
         // Clear the arena
         arenaManager.Clear();
         playerHand.Clear();
         opponentHand.Clear();
-        visualPlayerDeck.SpawnDeck();
-        visualOpponentDeck.SpawnDeck();
+        playerDeck.Clear();
+        opponentDeck.Clear();
 
-        // Reset flags
         waitForInitialLaneFill = false;
         gameLoop = false;
         resolveCards = false;
@@ -481,6 +470,16 @@ public class GameController : MonoBehaviour
         waitTime = 0f;
         uiManager.gameResultLabel.text = "";
         uiManager.gameResultLabel.color = Color.black;
+    }
+
+    public void NewGame()
+    {
+        //TODO detect if there is a current game already and ask if player wants to abandon current
+        
+        // Reset everything
+        EndGame();
+        visualPlayerDeck.SpawnDeck();
+        visualOpponentDeck.SpawnDeck();
 
         //TODO check if this is a rematch, if so, auto switch colors
 
@@ -540,18 +539,30 @@ public class GameController : MonoBehaviour
     private IEnumerator playerHandDraw(float delay)
     {
         Card playerCard = playerDeck.Draw();
-        GameObject playerCardGameObject = cardManager.SpawnCard(playerCard);
-        playerHand.AddCard(playerCardGameObject);
-        visualPlayerDeck.DrawCard();
+        if (playerCard != null)
+        {
+            GameObject playerCardGameObject = cardManager.SpawnCard(playerCard);
+            if (playerCardGameObject != null)
+            {
+                playerHand.AddCard(playerCardGameObject);
+                visualPlayerDeck.DrawCard();
+            }
+        }
         yield return new WaitForSeconds(delay);
     }
 
     private IEnumerator opponentHandDraw(float delay)
     {
         Card opponentCard = opponentDeck.Draw();
-        GameObject opponentCardGameObject = cardManager.SpawnCard(opponentCard);
-        opponentHand.AddCard(opponentCardGameObject);
-        visualOpponentDeck.DrawCard();
+        if (opponentCard != null)
+        {
+            GameObject opponentCardGameObject = cardManager.SpawnCard(opponentCard);
+            if (opponentCardGameObject != null)
+            {
+                opponentHand.AddCard(opponentCardGameObject);
+                visualOpponentDeck.DrawCard();
+            }
+        }
         yield return new WaitForSeconds(delay);
     }
 
