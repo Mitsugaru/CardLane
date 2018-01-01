@@ -61,6 +61,11 @@ public class ArenaManager : MonoBehaviour
 
     public void Clear()
     {
+        foreach(Lane lane in lanes)
+        {
+            lane.Clear();   
+        }
+
         IList<Transform> placements = generatePlacements();
         foreach (Transform placement in placements)
         {

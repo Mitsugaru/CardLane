@@ -123,6 +123,17 @@ public class Lane : MonoBehaviour
         return card;
     }
 
+    public void Clear()
+    {
+        playerCard = null;
+        opponentCard = null;
+
+        playerPoints = 0;
+        opponentPoints = 0;
+        currentPlayerPoints = -1;
+        currentOpponentPoints = -1;
+    }
+
     public enum Slot
     {
         PLAYER,
