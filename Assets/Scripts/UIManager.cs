@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIManager : MonoBehaviour {
+public class UIManager : MonoBehaviour
+{
 
     public GameController controller;
 
@@ -25,18 +26,20 @@ public class UIManager : MonoBehaviour {
 
     private bool pauseShowing = false;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start()
+    {
         newGameButton.onClick.AddListener(handleNewGame);
         exitButton.onClick.AddListener(handleExit);
         menuButton.onClick.AddListener(handlePause);
         surrenderButton.onClick.AddListener(handleSurrender);
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
 
     private void handleNewGame()
     {
@@ -55,7 +58,7 @@ public class UIManager : MonoBehaviour {
 
     private void handlePause()
     {
-        if(pauseShowing)
+        if (pauseShowing)
         {
             Time.timeScale = 1f;
             pauseShowing = false;
