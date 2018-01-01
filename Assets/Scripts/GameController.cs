@@ -31,6 +31,8 @@ public class GameController : MonoBehaviour
 
     private bool addJokers = true;
 
+    private bool stockpileRule = true;
+
     private bool waitForInitialLaneFill = false;
 
     private bool gameLoop = false;
@@ -189,6 +191,7 @@ public class GameController : MonoBehaviour
 
                     if (waitTime >= 1.5f)
                     {
+                        bool destroy = true;
                         // resolve
                         CardScript playerCardScript = selectedLane.PlayerCard.GetComponent<CardScript>();
                         CardScript opponentCardScript = selectedLane.OpponentCard.GetComponent<CardScript>();
@@ -196,23 +199,35 @@ public class GameController : MonoBehaviour
 
                         if (cardResolve > 0)
                         {
-                            selectedLane.playerPoints++;
+                            selectedLane.playerPoints += selectedLane.playerStockpile.childCount + 1;
                         }
                         else if (cardResolve < 0)
                         {
-                            selectedLane.opponentPoints++;
+                            selectedLane.opponentPoints += selectedLane.opponentStockpile.childCount + 1;
                         }
-                        else
+                        else if (stockpileRule)
                         {
-                            //TODO handle stockpile maneuver here
-                            //TODO move cards and reset local rotation (it'd be cool to do a rotate animation)
+                            // handle stockpile maneuver here
+                            destroy = false;
+                            arenaManager.placeStockpile(selectedLane.removeCard(Lane.Slot.PLAYER), selectedLane.playerStockpile);
+                            arenaManager.placeStockpile(selectedLane.removeCard(Lane.Slot.OPPONENT), selectedLane.opponentStockpile);
                         }
 
                         //TODO it'd be cool to have a fade animation
                         // remove cards from lane slots
-                        GameObject.Destroy(selectedLane.removeCard(Lane.Slot.PLAYER));
-                        GameObject.Destroy(selectedLane.removeCard(Lane.Slot.OPPONENT));
-                        //TODO remove cards from stockpile
+                        if (destroy)
+                        {
+                            GameObject.Destroy(selectedLane.removeCard(Lane.Slot.PLAYER));
+                            GameObject.Destroy(selectedLane.removeCard(Lane.Slot.OPPONENT));
+                            foreach (Transform child in selectedLane.playerStockpile)
+                            {
+                                GameObject.Destroy(child.gameObject);
+                            }
+                            foreach (Transform child in selectedLane.opponentStockpile)
+                            {
+                                GameObject.Destroy(child.gameObject);
+                            }
+                        }
 
                         revealPhase = false;
                         fillPhase = true;
@@ -285,6 +300,7 @@ public class GameController : MonoBehaviour
 
                     if (waitTime >= 1.5f)
                     {
+                        bool destroy = true;
                         // resolve
                         CardScript playerCardScript = selectedLane.PlayerCard.GetComponent<CardScript>();
                         CardScript opponentCardScript = selectedLane.OpponentCard.GetComponent<CardScript>();
@@ -292,23 +308,34 @@ public class GameController : MonoBehaviour
 
                         if (cardResolve > 0)
                         {
-                            selectedLane.playerPoints++;
+                            selectedLane.playerPoints += selectedLane.playerStockpile.childCount + 1;
                         }
                         else if (cardResolve < 0)
                         {
-                            selectedLane.opponentPoints++;
+                            selectedLane.opponentPoints += selectedLane.opponentStockpile.childCount + 1;
                         }
-                        else
+                        else if (stockpileRule)
                         {
-                            //TODO handle stockpile maneuver here
-                            //TODO move cards and reset local rotation (it'd be cool to do a rotate animation)
+                            destroy = false;
+                            arenaManager.placeStockpile(selectedLane.removeCard(Lane.Slot.PLAYER), selectedLane.playerStockpile);
+                            arenaManager.placeStockpile(selectedLane.removeCard(Lane.Slot.OPPONENT), selectedLane.opponentStockpile);
                         }
 
                         //TODO it'd be cool to have a fade animation
                         // remove cards from lane slots
-                        GameObject.Destroy(selectedLane.removeCard(Lane.Slot.PLAYER));
-                        GameObject.Destroy(selectedLane.removeCard(Lane.Slot.OPPONENT));
-                        //TODO remove cards from stockpile
+                        if (destroy)
+                        {
+                            GameObject.Destroy(selectedLane.removeCard(Lane.Slot.PLAYER));
+                            GameObject.Destroy(selectedLane.removeCard(Lane.Slot.OPPONENT));
+                            foreach (Transform child in selectedLane.playerStockpile)
+                            {
+                                GameObject.Destroy(child.gameObject);
+                            }
+                            foreach (Transform child in selectedLane.opponentStockpile)
+                            {
+                                GameObject.Destroy(child.gameObject);
+                            }
+                        }
 
                         revealPhase = false;
                         fillPhase = true;
@@ -470,12 +497,15 @@ public class GameController : MonoBehaviour
         waitTime = 0f;
         uiManager.gameResultLabel.text = "";
         uiManager.gameResultLabel.color = Color.black;
+
+        //TODO for any coroutines, make sure to interrupt / stop them
+        //Can get into an odd state with extra initial hand cards being drawn
     }
 
     public void NewGame()
     {
         //TODO detect if there is a current game already and ask if player wants to abandon current
-        
+
         // Reset everything
         EndGame();
         visualPlayerDeck.SpawnDeck();

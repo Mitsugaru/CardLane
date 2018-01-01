@@ -111,6 +111,14 @@ public class ArenaManager : MonoBehaviour
         playSound();
     }
 
+    public void placeStockpile(GameObject card, Transform parent)
+    {
+        card.transform.parent = parent;
+        card.transform.localPosition = new Vector3(0f, 0.01f * parent.childCount, 0f);
+        card.transform.localRotation = Quaternion.Euler(-90f, 0f, 90f + (30f * (parent.childCount - 1)));
+        //TODO it'd be cool to do a rotate animation
+    }
+
     private void playSound()
     {
         if (audioSource != null && placeSounds.Length > 0)
