@@ -38,27 +38,6 @@ public class ArenaManager : MonoBehaviour
     {
     }
 
-    public void DemoArena()
-    {
-        StartCoroutine(DemoArenaRoutine());
-    }
-
-    public IEnumerator DemoArenaRoutine()
-    {
-        IList<Transform> placements = generatePlacements();
-
-        foreach (Transform placement in placements)
-        {
-            GameObject card = cardManager.SpawnRandom();
-
-            if (card != null)
-            {
-                placeCard(card, placement);
-                yield return new WaitForSeconds(0.5f);
-            }
-        }
-    }
-
     public void Clear()
     {
         foreach(Lane lane in lanes)

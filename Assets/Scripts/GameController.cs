@@ -59,8 +59,6 @@ public class GameController : MonoBehaviour
 
     private bool endState = false;
 
-    private bool resolveCards = false;
-
     // Use this for initialization
     void Start()
     {
@@ -553,7 +551,6 @@ public class GameController : MonoBehaviour
 
         waitForInitialLaneFill = false;
         gameLoop = false;
-        resolveCards = false;
         drawPhase = false;
         mouseDown = false;
         laneSelectionPhase = false;
