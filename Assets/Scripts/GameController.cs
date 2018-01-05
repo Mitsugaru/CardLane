@@ -39,25 +39,9 @@ public class GameController : MonoBehaviour
 
     private bool playerTurn = false;
 
-    private bool drawPhase = false;
-
-    private bool laneSelectionPhase = false;
-
-    private bool mouseDown = false;
-
-    private float selectionTime = 0f;
-
     private Lane selectedLane;
 
-    private bool revealPhase = false;
-
-    private float waitTime = 0f;
-
-    private bool stockpileDrawPhase = false;
-
-    private bool fillPhase = false;
-
-    private bool endState = false;
+    private GamePhase currentPhase = new DrawPhase();
 
     // Use this for initialization
     void Start()
@@ -85,7 +69,6 @@ public class GameController : MonoBehaviour
             {
                 waitForInitialLaneFill = false;
                 gameLoop = true;
-                drawPhase = true;
             }
             else
             {
@@ -97,445 +80,79 @@ public class GameController : MonoBehaviour
         // once setup is complete, start game loop
         if (gameLoop)
         {
-            if (playerTurn && !endState)
+            if (!currentPhase.Setup)
             {
-                if (drawPhase)
+                if (currentPhase is DrawPhase)
                 {
-                    if (playerHand.Count < 5 && playerDeck.Deck.Count > 0)
+                    selectedLane = null;
+
+                    ((DrawPhase)currentPhase).CardManager = cardManager;
+                    ((DrawPhase)currentPhase).PlayerTurn = playerTurn;
+                    if (playerTurn)
                     {
-                        StartCoroutine(playerHandDraw(delay * 2));
+                        ((DrawPhase)currentPhase).Hand = playerHand;
+                        ((DrawPhase)currentPhase).Deck = playerDeck;
+                        ((DrawPhase)currentPhase).VisualDeck = visualPlayerDeck;
                     }
                     else
                     {
-                        drawPhase = false;
-                        laneSelectionPhase = true;
+                        ((DrawPhase)currentPhase).Hand = opponentHand;
+                        ((DrawPhase)currentPhase).Deck = opponentDeck;
+                        ((DrawPhase)currentPhase).VisualDeck = visualOpponentDeck;
                     }
                 }
-
-                if (laneSelectionPhase)
+                else if (currentPhase is AILaneSelectionPhase)
                 {
-                    // make a lane selection
-                    GameObject laneGo = null;
-                    bool hadInput = false;
-                    if (Input.touchSupported)
-                    {
-                        // Look for all fingers
-                        for (int i = 0; i < Input.touchCount; i++)
-                        {
-                            Touch touch = Input.GetTouch(i);
-                            Ray ray = Camera.main.ScreenPointToRay(touch.position);
-
-                            if (HitUtils.detectHitLane(ray, out laneGo))
-                            {
-                                selectionTime += Time.deltaTime;
-                                hadInput = true;
-                            }
-                        }
-
-                        if (Input.touchCount == 0)
-                        {
-                            //Touch was released, stop counting
-                            selectionTime = 0f;
-                        }
-                    }
-                    else
-                    {
-                        if (Input.GetMouseButtonUp(0))
-                        {
-                            selectionTime = 0f;
-                            mouseDown = false;
-                        }
-                        if (Input.GetMouseButtonDown(0))
-                        {
-                            mouseDown = true;
-                        }
-                        if (mouseDown && Input.GetMouseButton(0))
-                        {
-                            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-                            if (HitUtils.detectHitLane(ray, out laneGo))
-                            {
-                                selectionTime += Time.deltaTime;
-                                hadInput = true;
-                            }
-                        }
-                    }
-
-                    if (hadInput && selectionTime >= 1f)
-                    {
-                        selectionTime = 0f;
-                        mouseDown = false;
-
-                        selectedLane = laneGo.GetComponent<Lane>();
-                        if (selectedLane != null
-                            && selectedLane.PlayerCard != null
-                            && selectedLane.OpponentCard != null)
-                        {
-                            // animate the cards
-                            CardUtils.animateCard(selectedLane.PlayerCard);
-                            CardUtils.animateCard(selectedLane.OpponentCard);
-                            laneSelectionPhase = false;
-                            revealPhase = true;
-                        }
-                    }
+                    ((AILaneSelectionPhase)currentPhase).ArenaManager = arenaManager;
+                    ((AILaneSelectionPhase)currentPhase).AI = ai;
                 }
-
-                if (revealPhase)
+                else if (currentPhase is RevealPhase)
                 {
-                    // after animation resolve
-                    if (!CardUtils.isCardPlaying(selectedLane.PlayerCard)
-                        && !CardUtils.isCardPlaying(selectedLane.OpponentCard))
-                    {
-                        waitTime += Time.deltaTime;
-                    }
-
-                    if (waitTime >= 1.5f)
-                    {
-                        bool destroy = true;
-                        // resolve
-                        CardScript playerCardScript = selectedLane.PlayerCard.GetComponent<CardScript>();
-                        CardScript opponentCardScript = selectedLane.OpponentCard.GetComponent<CardScript>();
-                        int cardResolve = CardRuleUtils.Resolve(playerCardScript.Card, opponentCardScript.Card);
-
-                        if (cardResolve > 0)
-                        {
-                            selectedLane.playerPoints += selectedLane.playerStockpile.childCount + 1;
-                        }
-                        else if (cardResolve < 0)
-                        {
-                            selectedLane.opponentPoints += selectedLane.opponentStockpile.childCount + 1;
-                        }
-                        else if (stockpileRule)
-                        {
-                            // handle stockpile maneuver here
-                            stockpileDrawPhase = true;
-                            destroy = false;
-                            arenaManager.placeStockpile(selectedLane.removeCard(Lane.Slot.PLAYER), selectedLane.playerStockpile);
-                            arenaManager.placeStockpile(selectedLane.removeCard(Lane.Slot.OPPONENT), selectedLane.opponentStockpile);
-                        }
-
-                        //TODO it'd be cool to have a fade animation
-                        // remove cards from lane slots
-                        if (destroy)
-                        {
-                            GameObject.Destroy(selectedLane.removeCard(Lane.Slot.PLAYER));
-                            GameObject.Destroy(selectedLane.removeCard(Lane.Slot.OPPONENT));
-                            foreach (Transform child in selectedLane.playerStockpile)
-                            {
-                                GameObject.Destroy(child.gameObject);
-                            }
-                            foreach (Transform child in selectedLane.opponentStockpile)
-                            {
-                                GameObject.Destroy(child.gameObject);
-                            }
-                            fillPhase = true;
-                        }
-
-                        revealPhase = false;
-                        waitTime = 0f;
-                    }
+                    ((RevealPhase)currentPhase).ArenaManager = arenaManager;
+                    ((RevealPhase)currentPhase).SelectedLane = selectedLane;
+                    ((RevealPhase)currentPhase).StockpileRule = stockpileRule;
                 }
-
-                if (stockpileDrawPhase)
+                else if (currentPhase is StockpileDrawPhase)
                 {
-                    bool playerReady = false;
-                    bool opponentReady = false;
-                    if (playerHand.Count < 5 && playerDeck.Deck.Count > 0)
-                    {
-                        StartCoroutine(playerHandDraw(delay * 2));
-                    }
-                    else
-                    {
-                        playerReady = true;
-                    }
-                    if (opponentHand.Count < 5 && opponentDeck.Deck.Count > 0)
-                    {
-                        StartCoroutine(opponentHandDraw(delay * 2));
-                    }
-                    else
-                    {
-                        opponentReady = true;
-                    }
-
-                    if (playerReady && opponentReady)
-                    {
-                        stockpileDrawPhase = false;
-                        fillPhase = true;
-                    }
+                    ((StockpileDrawPhase)currentPhase).CardManager = cardManager;
+                    ((StockpileDrawPhase)currentPhase).PlayerHand = playerHand;
+                    ((StockpileDrawPhase)currentPhase).PlayerDeck = playerDeck;
+                    ((StockpileDrawPhase)currentPhase).PlayerVisualDeck = visualPlayerDeck;
+                    ((StockpileDrawPhase)currentPhase).OpponentHand = opponentHand;
+                    ((StockpileDrawPhase)currentPhase).OpponentDeck = opponentDeck;
+                    ((StockpileDrawPhase)currentPhase).OpponentVisualDeck = visualOpponentDeck;
                 }
-
-                if (fillPhase)
+                else if (currentPhase is FillPhase)
                 {
-                    // wait for player lane to be filled
-                    if ((arenaManager.checkPlayerLanesFilled() && arenaManager.checkOpponentLanesFilled())
-                        || (playerHand.Count == 0 && opponentHand.Count == 0))
-                    {
-                        fillPhase = false;
-                        playerTurn = false;
-                        drawPhase = true;
-                        selectedLane = null;
-                    }
-                    else if (!arenaManager.checkOpponentLanesFilled())
-                    {
-                        // have AI fill lane
-                        foreach (Lane lane in arenaManager.getLanes())
-                        {
-                            if (lane.OpponentCard == null)
-                            {
-                                refreshOpponentLane(lane);
-                            }
-                        }
-                    }
+                    ((FillPhase)currentPhase).ArenaManager = arenaManager;
+                    ((FillPhase)currentPhase).PlayerHand = playerHand;
+                    ((FillPhase)currentPhase).OpponentHand = opponentHand;
+                    ((FillPhase)currentPhase).OpponentDeck = opponentDeck;
+                    ((FillPhase)currentPhase).AI = ai;
+                    playerTurn = !playerTurn;
                 }
-            }
-            else if (!endState)
-            {
-                //AI opponent turn
-                if (drawPhase)
+                else if (currentPhase is EndPhase)
                 {
-                    if (opponentHand.Count < 5 && opponentDeck.Deck.Count > 0)
-                    {
-                        StartCoroutine(opponentHandDraw(delay * 2));
-                    }
-                    else
-                    {
-                        drawPhase = false;
-                        laneSelectionPhase = true;
-                    }
+                    ((EndPhase)currentPhase).ArenaManager = arenaManager;
+                    ((EndPhase)currentPhase).InterfaceManager = uiManager;
                 }
-
-                if (laneSelectionPhase)
+                else if (currentPhase is EmptyPhase)
                 {
-                    selectedLane = aiPickLane();
-                    if (selectedLane != null
-                        && selectedLane.PlayerCard != null
-                        && selectedLane.OpponentCard != null)
-                    {
-                        CardUtils.animateCard(selectedLane.PlayerCard);
-                        CardUtils.animateCard(selectedLane.OpponentCard);
-                        laneSelectionPhase = false;
-                        revealPhase = true;
-                    }
-                }
-
-                if (revealPhase)
-                {
-                    // after animation resolve
-                    if (!CardUtils.isCardPlaying(selectedLane.PlayerCard)
-                        && !CardUtils.isCardPlaying(selectedLane.OpponentCard))
-                    {
-                        waitTime += Time.deltaTime;
-                    }
-
-                    if (waitTime >= 1.5f)
-                    {
-                        bool destroy = true;
-                        // resolve
-                        CardScript playerCardScript = selectedLane.PlayerCard.GetComponent<CardScript>();
-                        CardScript opponentCardScript = selectedLane.OpponentCard.GetComponent<CardScript>();
-                        int cardResolve = CardRuleUtils.Resolve(playerCardScript.Card, opponentCardScript.Card);
-
-                        if (cardResolve > 0)
-                        {
-                            selectedLane.playerPoints += selectedLane.playerStockpile.childCount + 1;
-                        }
-                        else if (cardResolve < 0)
-                        {
-                            selectedLane.opponentPoints += selectedLane.opponentStockpile.childCount + 1;
-                        }
-                        else if (stockpileRule)
-                        {
-                            destroy = false;
-                            stockpileDrawPhase = true;
-                            arenaManager.placeStockpile(selectedLane.removeCard(Lane.Slot.PLAYER), selectedLane.playerStockpile);
-                            arenaManager.placeStockpile(selectedLane.removeCard(Lane.Slot.OPPONENT), selectedLane.opponentStockpile);
-                        }
-
-                        //TODO it'd be cool to have a fade animation
-                        // remove cards from lane slots
-                        if (destroy)
-                        {
-                            GameObject.Destroy(selectedLane.removeCard(Lane.Slot.PLAYER));
-                            GameObject.Destroy(selectedLane.removeCard(Lane.Slot.OPPONENT));
-                            foreach (Transform child in selectedLane.playerStockpile)
-                            {
-                                GameObject.Destroy(child.gameObject);
-                            }
-                            foreach (Transform child in selectedLane.opponentStockpile)
-                            {
-                                GameObject.Destroy(child.gameObject);
-                            }
-
-                            fillPhase = true;
-                        }
-
-                        revealPhase = false;
-                        waitTime = 0f;
-                    }
-                }
-
-                if (stockpileDrawPhase)
-                {
-                    bool playerReady = false;
-                    bool opponentReady = false;
-                    if (playerHand.Count < 5 && playerDeck.Deck.Count > 0)
-                    {
-                        StartCoroutine(playerHandDraw(delay * 2));
-                    }
-                    else
-                    {
-                        playerReady = true;
-                    }
-                    if (opponentHand.Count < 5 && opponentDeck.Deck.Count > 0)
-                    {
-                        StartCoroutine(opponentHandDraw(delay * 2));
-                    }
-                    else
-                    {
-                        opponentReady = true;
-                    }
-
-                    if (playerReady && opponentReady)
-                    {
-                        stockpileDrawPhase = false;
-                        fillPhase = true;
-                    }
-                }
-
-                if (fillPhase)
-                {
-                    // wait for player lane to be filled
-                    if ((arenaManager.checkPlayerLanesFilled() && arenaManager.checkOpponentLanesFilled())
-                        || (playerHand.Count == 0 && opponentHand.Count == 0))
-                    {
-                        fillPhase = false;
-                        playerTurn = true;
-                        drawPhase = true;
-                        selectedLane = null;
-                    }
-                    else if (!arenaManager.checkOpponentLanesFilled())
-                    {
-                        // have AI fill lane
-                        foreach (Lane lane in arenaManager.getLanes())
-                        {
-                            if (lane.OpponentCard == null)
-                            {
-                                refreshOpponentLane(lane);
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // reveal and resolve the remaining cards
-                // on the table
-                if (laneSelectionPhase)
-                {
-                    foreach (Lane lane in arenaManager.getLanes())
-                    {
-                        if (lane.PlayerCard != null
-                            && lane.OpponentCard != null)
-                        {
-                            selectedLane = lane;
-                            CardUtils.animateCard(selectedLane.PlayerCard);
-                            CardUtils.animateCard(selectedLane.OpponentCard);
-                            laneSelectionPhase = false;
-                            revealPhase = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (revealPhase)
-                {
-                    // after animation resolve
-                    if (!CardUtils.isCardPlaying(selectedLane.PlayerCard)
-                        && !CardUtils.isCardPlaying(selectedLane.OpponentCard))
-                    {
-                        waitTime += Time.deltaTime;
-                    }
-
-                    if (waitTime >= 1.5f)
-                    {
-                        // resolve
-                        CardScript playerCardScript = selectedLane.PlayerCard.GetComponent<CardScript>();
-                        CardScript opponentCardScript = selectedLane.OpponentCard.GetComponent<CardScript>();
-                        int cardResolve = CardRuleUtils.Resolve(playerCardScript.Card, opponentCardScript.Card);
-
-                        if (cardResolve > 0)
-                        {
-                            selectedLane.playerPoints++;
-                        }
-                        else if (cardResolve < 0)
-                        {
-                            selectedLane.opponentPoints++;
-                        }
-                        // Discard draws because its the end state
-
-                        //TODO it'd be cool to have a fade animation
-                        // remove cards from lane slots
-                        GameObject.Destroy(selectedLane.removeCard(Lane.Slot.PLAYER));
-                        GameObject.Destroy(selectedLane.removeCard(Lane.Slot.OPPONENT));
-                        foreach (Transform child in selectedLane.playerStockpile)
-                        {
-                            GameObject.Destroy(child.gameObject);
-                        }
-                        foreach (Transform child in selectedLane.opponentStockpile)
-                        {
-                            GameObject.Destroy(child.gameObject);
-                        }
-
-                        revealPhase = false;
-                        laneSelectionPhase = true;
-                        selectedLane = null;
-                        waitTime = 0f;
-                    }
-                }
-                else
-                {
-                    //true end, figure out winner
-                    int playerLanes = 0;
-                    int opponentLanes = 0;
-
-                    foreach (Lane lane in arenaManager.getLanes())
-                    {
-                        //TODO highlight the lane to the winner
-                        if (lane.playerPoints > lane.opponentPoints)
-                        {
-                            playerLanes++;
-                        }
-                        else if (lane.playerPoints < lane.opponentPoints)
-                        {
-                            opponentLanes++;
-                        }
-                    }
-
-                    if (playerLanes > opponentLanes)
-                    {
-                        uiManager.gameResultLabel.text = "You Win";
-                        uiManager.gameResultLabel.color = Color.green;
-                    }
-                    else if (opponentLanes > playerLanes)
-                    {
-                        uiManager.gameResultLabel.text = "You Lose";
-                        uiManager.gameResultLabel.color = Color.red;
-                    }
-                    else
-                    {
-                        uiManager.gameResultLabel.text = "Draw";
-                        uiManager.gameResultLabel.color = Color.black;
-                    }
-
                     gameLoop = false;
                 }
+
+                currentPhase.Setup = true;
             }
 
-            // check if the player hands still have cards to play
-            if (!endState && playerHand.Count == 0 && opponentHand.Count == 0)
+            currentPhase.execute();
+
+            if (currentPhase.hasCompleted())
             {
-                endState = true;
-                laneSelectionPhase = true;
+                if (currentPhase is LaneSelectionPhase)
+                {
+                    selectedLane = ((LaneSelectionPhase)currentPhase).SelectedLane;
+                }
+                currentPhase = currentPhase.getNextPhase();
             }
         }
     }
@@ -549,18 +166,10 @@ public class GameController : MonoBehaviour
         playerDeck.Clear();
         opponentDeck.Clear();
 
+        currentPhase = new DrawPhase();
         waitForInitialLaneFill = false;
         gameLoop = false;
-        drawPhase = false;
-        mouseDown = false;
-        laneSelectionPhase = false;
-        stockpileDrawPhase = false;
-        revealPhase = false;
-        fillPhase = false;
         selectedLane = null;
-        endState = false;
-        selectionTime = 0f;
-        waitTime = 0f;
         uiManager.gameResultLabel.text = "";
         uiManager.gameResultLabel.color = Color.black;
 
