@@ -25,4 +25,36 @@ public class CardUtils {
         blackList.AddRange(generateCardsForSuit(Suit.CLUBS));
         blackList.AddRange(generateCardsForSuit(Suit.SPADES));
     }
+
+    public static void animateCard(GameObject card)
+    {
+        Animation animation = card.GetComponent<Animation>();
+        if (animation != null)
+        {
+            animation.Play("CardFlip");
+        }
+        AudioSource audio = card.GetComponent<AudioSource>();
+        if (audio != null)
+        {
+            audio.Play();
+        }
+    }
+
+    public static bool isCardPlaying(GameObject card)
+    {
+        bool playing = false;
+
+        Animation animation = card.GetComponent<Animation>();
+        if (animation != null)
+        {
+            playing = animation.IsPlaying("CardFlip");
+        }
+        AudioSource audio = card.GetComponent<AudioSource>();
+        if (audio != null && !playing)
+        {
+            playing = audio.isPlaying;
+        }
+
+        return playing;
+    }
 }

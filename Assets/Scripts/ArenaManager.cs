@@ -98,6 +98,20 @@ public class ArenaManager : MonoBehaviour
         //TODO it'd be cool to do a rotate animation
     }
 
+    public bool checkPlayerLanesFilled()
+    {
+        return LaneA.PlayerCard != null
+                && LaneB.PlayerCard != null
+                && LaneC.PlayerCard != null;
+    }
+
+    public bool checkOpponentLanesFilled()
+    {
+        return LaneA.OpponentCard != null
+                && LaneB.OpponentCard != null
+                && LaneC.OpponentCard != null;
+    }
+
     private void playSound()
     {
         if (audioSource != null && placeSounds.Length > 0)

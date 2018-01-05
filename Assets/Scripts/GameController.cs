@@ -81,7 +81,7 @@ public class GameController : MonoBehaviour
         // Start setup portion of game
         if (waitForInitialLaneFill)
         {
-            if (checkPlayerLanesFilled() && checkOpponentLanesFilled() && checkHandSetup())
+            if (arenaManager.checkPlayerLanesFilled() && arenaManager.checkOpponentLanesFilled() && checkHandSetup())
             {
                 waitForInitialLaneFill = false;
                 gameLoop = true;
@@ -172,8 +172,8 @@ public class GameController : MonoBehaviour
                             && selectedLane.OpponentCard != null)
                         {
                             // animate the cards
-                            animateCard(selectedLane.PlayerCard);
-                            animateCard(selectedLane.OpponentCard);
+                            CardUtils.animateCard(selectedLane.PlayerCard);
+                            CardUtils.animateCard(selectedLane.OpponentCard);
                             laneSelectionPhase = false;
                             revealPhase = true;
                         }
@@ -183,8 +183,8 @@ public class GameController : MonoBehaviour
                 if (revealPhase)
                 {
                     // after animation resolve
-                    if (!isCardPlaying(selectedLane.PlayerCard)
-                        && !isCardPlaying(selectedLane.OpponentCard))
+                    if (!CardUtils.isCardPlaying(selectedLane.PlayerCard)
+                        && !CardUtils.isCardPlaying(selectedLane.OpponentCard))
                     {
                         waitTime += Time.deltaTime;
                     }
@@ -267,7 +267,7 @@ public class GameController : MonoBehaviour
                 if (fillPhase)
                 {
                     // wait for player lane to be filled
-                    if ((checkPlayerLanesFilled() && checkOpponentLanesFilled())
+                    if ((arenaManager.checkPlayerLanesFilled() && arenaManager.checkOpponentLanesFilled())
                         || (playerHand.Count == 0 && opponentHand.Count == 0))
                     {
                         fillPhase = false;
@@ -275,7 +275,7 @@ public class GameController : MonoBehaviour
                         drawPhase = true;
                         selectedLane = null;
                     }
-                    else if (!checkOpponentLanesFilled())
+                    else if (!arenaManager.checkOpponentLanesFilled())
                     {
                         // have AI fill lane
                         foreach (Lane lane in arenaManager.getLanes())
@@ -311,8 +311,8 @@ public class GameController : MonoBehaviour
                         && selectedLane.PlayerCard != null
                         && selectedLane.OpponentCard != null)
                     {
-                        animateCard(selectedLane.PlayerCard);
-                        animateCard(selectedLane.OpponentCard);
+                        CardUtils.animateCard(selectedLane.PlayerCard);
+                        CardUtils.animateCard(selectedLane.OpponentCard);
                         laneSelectionPhase = false;
                         revealPhase = true;
                     }
@@ -321,8 +321,8 @@ public class GameController : MonoBehaviour
                 if (revealPhase)
                 {
                     // after animation resolve
-                    if (!isCardPlaying(selectedLane.PlayerCard)
-                        && !isCardPlaying(selectedLane.OpponentCard))
+                    if (!CardUtils.isCardPlaying(selectedLane.PlayerCard)
+                        && !CardUtils.isCardPlaying(selectedLane.OpponentCard))
                     {
                         waitTime += Time.deltaTime;
                     }
@@ -405,7 +405,7 @@ public class GameController : MonoBehaviour
                 if (fillPhase)
                 {
                     // wait for player lane to be filled
-                    if ((checkPlayerLanesFilled() && checkOpponentLanesFilled())
+                    if ((arenaManager.checkPlayerLanesFilled() && arenaManager.checkOpponentLanesFilled())
                         || (playerHand.Count == 0 && opponentHand.Count == 0))
                     {
                         fillPhase = false;
@@ -413,7 +413,7 @@ public class GameController : MonoBehaviour
                         drawPhase = true;
                         selectedLane = null;
                     }
-                    else if (!checkOpponentLanesFilled())
+                    else if (!arenaManager.checkOpponentLanesFilled())
                     {
                         // have AI fill lane
                         foreach (Lane lane in arenaManager.getLanes())
@@ -438,8 +438,8 @@ public class GameController : MonoBehaviour
                             && lane.OpponentCard != null)
                         {
                             selectedLane = lane;
-                            animateCard(selectedLane.PlayerCard);
-                            animateCard(selectedLane.OpponentCard);
+                            CardUtils.animateCard(selectedLane.PlayerCard);
+                            CardUtils.animateCard(selectedLane.OpponentCard);
                             laneSelectionPhase = false;
                             revealPhase = true;
                             break;
@@ -450,8 +450,8 @@ public class GameController : MonoBehaviour
                 if (revealPhase)
                 {
                     // after animation resolve
-                    if (!isCardPlaying(selectedLane.PlayerCard)
-                        && !isCardPlaying(selectedLane.OpponentCard))
+                    if (!CardUtils.isCardPlaying(selectedLane.PlayerCard)
+                        && !CardUtils.isCardPlaying(selectedLane.OpponentCard))
                     {
                         waitTime += Time.deltaTime;
                     }
@@ -662,23 +662,9 @@ public class GameController : MonoBehaviour
         yield return new WaitForSeconds(delay);
     }
 
-    private bool checkPlayerLanesFilled()
-    {
-        return arenaManager.LaneA.PlayerCard != null
-                && arenaManager.LaneB.PlayerCard != null
-                && arenaManager.LaneC.PlayerCard != null;
-    }
-
-    private bool checkOpponentLanesFilled()
-    {
-        return arenaManager.LaneA.OpponentCard != null
-                && arenaManager.LaneB.OpponentCard != null
-                && arenaManager.LaneC.OpponentCard != null;
-    }
-
     private void handlePlayerSetup()
     {
-        if (checkPlayerLanesFilled() && playerHand.Count < 5)
+        if (arenaManager.checkPlayerLanesFilled() && playerHand.Count < 5)
         {
             StartCoroutine(playerHandDraw(delay * 2));
         }
@@ -693,7 +679,7 @@ public class GameController : MonoBehaviour
         }
         else
         {
-            if (checkOpponentLanesFilled() && opponentHand.Count < 5)
+            if (arenaManager.checkOpponentLanesFilled() && opponentHand.Count < 5)
             {
                 StartCoroutine(opponentHandDraw(delay * 2));
             }
@@ -739,37 +725,5 @@ public class GameController : MonoBehaviour
     private bool checkHandSetup()
     {
         return playerHand.Count == 5 && opponentHand.Count == 5;
-    }
-
-    private void animateCard(GameObject card)
-    {
-        Animation animation = card.GetComponent<Animation>();
-        if (animation != null)
-        {
-            animation.Play("CardFlip");
-        }
-        AudioSource audio = card.GetComponent<AudioSource>();
-        if (audio != null)
-        {
-            audio.Play();
-        }
-    }
-
-    private bool isCardPlaying(GameObject card)
-    {
-        bool playing = false;
-
-        Animation animation = card.GetComponent<Animation>();
-        if (animation != null)
-        {
-            playing = animation.IsPlaying("CardFlip");
-        }
-        AudioSource audio = card.GetComponent<AudioSource>();
-        if (audio != null && !playing)
-        {
-            playing = audio.isPlaying;
-        }
-
-        return playing;
     }
 }
