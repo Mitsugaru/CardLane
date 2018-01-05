@@ -25,7 +25,7 @@ public class GameController : MonoBehaviour
 
     private SimpleRandomAI ai;
 
-    private float delay = 0.3f;
+    private float delay = 0.2f;
 
     private bool playerFirst = false;
 
@@ -71,7 +71,7 @@ public class GameController : MonoBehaviour
             || Application.platform != RuntimePlatform.OSXPlayer
             || Application.platform != RuntimePlatform.OSXEditor)
         {
-            delay = 0.4f;
+            delay = 0.3f;
         }
     }
 
