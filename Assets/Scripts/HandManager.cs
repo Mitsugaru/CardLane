@@ -49,14 +49,8 @@ public class HandManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (enableInput && Input.touchSupported)
-        {
-            handleTouch();
-        }
-        else if (enableInput)
-        {
-            handleMouseAndKeyboard();
-        }
+        handleTouch();
+        handleMouseAndKeyboard();
 
         // manage card movement
         if (cards.Count > 0)

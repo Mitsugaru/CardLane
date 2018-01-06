@@ -16,47 +16,41 @@ public class LaneSelectionPhase : GamePhase
         // make a lane selection
         GameObject laneGo = null;
         bool hadInput = false;
-        if (Input.touchSupported)
+        // Look for all fingers
+        for (int i = 0; i < Input.touchCount; i++)
         {
-            // Look for all fingers
-            for (int i = 0; i < Input.touchCount; i++)
-            {
-                Touch touch = Input.GetTouch(i);
-                Ray ray = Camera.main.ScreenPointToRay(touch.position);
+            Touch touch = Input.GetTouch(i);
+            Ray ray = Camera.main.ScreenPointToRay(touch.position);
 
-                if (HitUtils.detectHitLane(ray, out laneGo))
-                {
-                    selectionTime += Time.deltaTime;
-                    hadInput = true;
-                }
-            }
-
-            if (Input.touchCount == 0)
+            if (HitUtils.detectHitLane(ray, out laneGo))
             {
-                //Touch was released, stop counting
-                selectionTime = 0f;
+                selectionTime += Time.deltaTime;
+                hadInput = true;
             }
         }
-        else
-        {
-            if (Input.GetMouseButtonUp(0))
-            {
-                selectionTime = 0f;
-                mouseDown = false;
-            }
-            if (Input.GetMouseButtonDown(0))
-            {
-                mouseDown = true;
-            }
-            if (mouseDown && Input.GetMouseButton(0))
-            {
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-                if (HitUtils.detectHitLane(ray, out laneGo))
-                {
-                    selectionTime += Time.deltaTime;
-                    hadInput = true;
-                }
+        if (!mouseDown && Input.touchCount == 0)
+        {
+            //Touch was released, stop counting
+            selectionTime = 0f;
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
+            selectionTime = 0f;
+            mouseDown = false;
+        }
+        if (Input.GetMouseButtonDown(0))
+        {
+            mouseDown = true;
+        }
+        if (mouseDown && Input.GetMouseButton(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            if (HitUtils.detectHitLane(ray, out laneGo))
+            {
+                selectionTime += Time.deltaTime;
+                hadInput = true;
             }
         }
 
@@ -66,7 +60,7 @@ public class LaneSelectionPhase : GamePhase
             mouseDown = false;
 
             SelectedLane = laneGo.GetComponent<Lane>();
-            checkReveal();   
+            checkReveal();
         }
     }
 
