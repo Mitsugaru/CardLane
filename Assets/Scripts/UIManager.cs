@@ -14,9 +14,17 @@ public class UIManager : MonoBehaviour
 
     public GameObject mainMenu;
 
+    public GameObject tutorialMenu;
+
     public GameObject pauseMenu;
 
+    public GameObject tooltipHelp;
+
+    public Text tooltipText;
+
     public Button newGameButton;
+
+    public Button howToPlayButton;
 
     public Button exitButton;
 
@@ -24,14 +32,13 @@ public class UIManager : MonoBehaviour
 
     public Button surrenderButton;
 
-    private bool pauseShowing = false;
-
     // Use this for initialization
     void Start()
     {
         newGameButton.onClick.AddListener(handleNewGame);
+        howToPlayButton.onClick.AddListener(handleTutorial);
         exitButton.onClick.AddListener(handleExit);
-        menuButton.onClick.AddListener(handlePause);
+        menuButton.onClick.AddListener(handleMenu);
         surrenderButton.onClick.AddListener(handleSurrender);
     }
 
@@ -41,11 +48,36 @@ public class UIManager : MonoBehaviour
 
     }
 
+    public void hideHelp()
+    {
+        tooltipHelp.SetActive(false);
+    }
+
+    public void showHelp(HelpDisplay help)
+    {
+        switch(help)
+        {
+            case HelpDisplay.SETUP:
+                tooltipText.text = "Fill each lane with a card from your hand";
+                break;
+            case HelpDisplay.SELECT_LANE:
+                tooltipText.text = "Select a lane by click / tap and hold until the cards are revealed";
+                break;
+            case HelpDisplay.FILL_LANE:
+                tooltipText.text = "Fill a lane with a card from your hand";
+                break;
+            default:
+                break;
+        }
+        tooltipHelp.SetActive(true);
+    }
+
     private void handleNewGame()
     {
         controller.NewGame();
 
         menuButton.gameObject.SetActive(true);
+        tooltipHelp.SetActive(true);
         //TODO do a fade in / out
         mainMenu.SetActive(false);
         background.SetActive(false);
@@ -56,30 +88,44 @@ public class UIManager : MonoBehaviour
         Application.Quit();
     }
 
-    private void handlePause()
+    private void handleTutorial()
     {
-        if (pauseShowing)
+        tutorialMenu.SetActive(true);
+        mainMenu.SetActive(false);
+        menuButton.gameObject.SetActive(true);
+    }
+
+    private void handleMenu()
+    {
+        if (tutorialMenu.activeInHierarchy)
+        {
+            tutorialMenu.SetActive(false);
+            mainMenu.SetActive(true);
+            menuButton.gameObject.SetActive(false);
+        }
+        else if (pauseMenu.activeInHierarchy)
         {
             Time.timeScale = 1f;
-            pauseShowing = false;
             pauseMenu.SetActive(false);
+            tooltipHelp.SetActive(true);
             gameResultLabel.gameObject.SetActive(true);
         }
         else
         {
             Time.timeScale = 0f;
-            pauseShowing = true;
             pauseMenu.SetActive(true);
+            tooltipHelp.SetActive(false);
             gameResultLabel.gameObject.SetActive(false);
         }
     }
 
     private void handleSurrender()
     {
-        handlePause();
+        handleMenu();
         controller.EndGame();
 
         menuButton.gameObject.SetActive(false);
+        tooltipHelp.SetActive(false);
         //TODO do a fade in / out
         mainMenu.SetActive(true);
         background.SetActive(true);

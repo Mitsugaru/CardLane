@@ -85,7 +85,7 @@ public class GameController : MonoBehaviour
                 if (currentPhase is DrawPhase)
                 {
                     selectedLane = null;
-
+                    uiManager.hideHelp();
                     ((DrawPhase)currentPhase).CardManager = cardManager;
                     ((DrawPhase)currentPhase).PlayerTurn = playerTurn;
                     if (playerTurn)
@@ -106,8 +106,13 @@ public class GameController : MonoBehaviour
                     ((AILaneSelectionPhase)currentPhase).ArenaManager = arenaManager;
                     ((AILaneSelectionPhase)currentPhase).AI = ai;
                 }
+                else if(currentPhase is LaneSelectionPhase && !uiManager.tooltipHelp.activeInHierarchy)
+                {
+                    uiManager.showHelp(HelpDisplay.SELECT_LANE);
+                }
                 else if (currentPhase is RevealPhase)
                 {
+                    uiManager.hideHelp();
                     ((RevealPhase)currentPhase).ArenaManager = arenaManager;
                     ((RevealPhase)currentPhase).SelectedLane = selectedLane;
                     ((RevealPhase)currentPhase).StockpileRule = stockpileRule;
@@ -124,6 +129,7 @@ public class GameController : MonoBehaviour
                 }
                 else if (currentPhase is FillPhase)
                 {
+                    uiManager.showHelp(HelpDisplay.FILL_LANE);
                     ((FillPhase)currentPhase).ArenaManager = arenaManager;
                     ((FillPhase)currentPhase).PlayerHand = playerHand;
                     ((FillPhase)currentPhase).OpponentHand = opponentHand;
@@ -133,6 +139,7 @@ public class GameController : MonoBehaviour
                 }
                 else if (currentPhase is EndPhase)
                 {
+                    uiManager.hideHelp();
                     ((EndPhase)currentPhase).ArenaManager = arenaManager;
                     ((EndPhase)currentPhase).InterfaceManager = uiManager;
                 }
@@ -226,6 +233,8 @@ public class GameController : MonoBehaviour
 
         // Draw initial hands as a fast coroutine for animation to occur
         StartCoroutine(initialHandDraw());
+
+        uiManager.showHelp(HelpDisplay.SETUP);
     }
 
     private IEnumerator initialHandDraw()
