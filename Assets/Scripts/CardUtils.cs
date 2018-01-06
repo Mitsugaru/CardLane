@@ -24,6 +24,27 @@ public class CardUtils {
         redList.AddRange(generateCardsForSuit(Suit.HEARTS));
         blackList.AddRange(generateCardsForSuit(Suit.CLUBS));
         blackList.AddRange(generateCardsForSuit(Suit.SPADES));
+
+        adjustCardList(redList);
+        adjustCardList(blackList);
+    }
+
+    private static void adjustCardList(List<Card> list)
+    {
+        List<Card> toReplace = new List<Card>();
+        foreach(Card card in list)
+        {
+            if(card.Rank == Rank.TEN)
+            {
+                toReplace.Add(card);
+            }
+        }
+        foreach(Card replace in toReplace)
+        {
+            Suit suit = replace.Suit;
+            list.Remove(replace);
+            list.Add(new Card(Rank.JACK, suit));
+        }
     }
 
     public static void animateCard(GameObject card)
