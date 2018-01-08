@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using DakaniLabs.CardLane.Card;
+using NUnit.Framework;
 
 [TestFixture]
 public class CardRuleUtilsTest

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using DakaniLabs.CardLane.Card;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
