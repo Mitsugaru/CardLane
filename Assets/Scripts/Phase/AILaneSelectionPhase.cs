@@ -3,35 +3,38 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AILaneSelectionPhase : LaneSelectionPhase
+namespace DakaniLabs.CardLane.Phase
 {
-
-    public ArenaManager ArenaManager { get; set; }
-
-    public SimpleRandomAI AI { get; set; }
-
-    public override void execute()
+    public class AILaneSelectionPhase : LaneSelectionPhase
     {
-        if(SelectedLane == null)
+
+        public ArenaManager ArenaManager { get; set; }
+
+        public SimpleRandomAI AI { get; set; }
+
+        public override void execute()
         {
-            int lane = AI.pickLane();
-            switch (lane)
+            if (SelectedLane == null)
             {
-                case 0:
-                    SelectedLane = ArenaManager.LaneA;
-                    break;
-                case 1:
-                    SelectedLane = ArenaManager.LaneB;
-                    break;
-                case 2:
-                    SelectedLane = ArenaManager.LaneC;
-                    break;
-                default:
-                    break;
+                int lane = AI.pickLane();
+                switch (lane)
+                {
+                    case 0:
+                        SelectedLane = ArenaManager.LaneA;
+                        break;
+                    case 1:
+                        SelectedLane = ArenaManager.LaneB;
+                        break;
+                    case 2:
+                        SelectedLane = ArenaManager.LaneC;
+                        break;
+                    default:
+                        break;
+                }
             }
+
+            checkReveal();
         }
 
-        checkReveal();
     }
-
 }

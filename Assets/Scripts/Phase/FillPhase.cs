@@ -4,65 +4,68 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FillPhase : GamePhase
+namespace DakaniLabs.CardLane.Phase
 {
-
-    public ArenaManager ArenaManager { get; set; }
-
-    public HandManager PlayerHand { get; set; }
-
-    public HandManager OpponentHand { get; set; }
-
-    public PlayerDeck OpponentDeck { get; set; }
-
-    public SimpleRandomAI AI { get; set; }
-
-    public override void execute()
+    public class FillPhase : GamePhase
     {
-        if (!ArenaManager.checkOpponentLanesFilled())
+
+        public ArenaManager ArenaManager { get; set; }
+
+        public HandManager PlayerHand { get; set; }
+
+        public HandManager OpponentHand { get; set; }
+
+        public PlayerDeck OpponentDeck { get; set; }
+
+        public SimpleRandomAI AI { get; set; }
+
+        public override void execute()
         {
-            // have AI fill lane
-            foreach (Lane lane in ArenaManager.getLanes())
+            if (!ArenaManager.checkOpponentLanesFilled())
             {
-                if (lane.OpponentCard == null)
+                // have AI fill lane
+                foreach (Lane lane in ArenaManager.getLanes())
                 {
-                    refreshOpponentLane(lane);
+                    if (lane.OpponentCard == null)
+                    {
+                        refreshOpponentLane(lane);
+                    }
                 }
             }
         }
-    }
 
-    public override GamePhase getNextPhase()
-    {
-        GamePhase next = null;
-        if (PlayerHand.Count == 0 && OpponentHand.Count == 0)
+        public override GamePhase getNextPhase()
         {
-            next = new EndPhase();
-        }
-        else
-        {
-            next = new DrawPhase();
-        }
-        return next;
-    }
-
-    public override bool hasCompleted()
-    {
-        return (ArenaManager.checkPlayerLanesFilled() && ArenaManager.checkOpponentLanesFilled())
-                        || (PlayerHand.Count == 0 && OpponentHand.Count == 0);
-    }
-
-    private void refreshOpponentLane(Lane lane)
-    {
-        if (lane.OpponentCard == null)
-        {
-            Card card = AI.pickCard(OpponentHand.GetCards());
-            OpponentHand.selectCard(card);
-            GameObject cardGO = OpponentHand.GetSelectedCard();
-            if (lane.setCard(cardGO, Lane.Slot.OPPONENT))
+            GamePhase next = null;
+            if (PlayerHand.Count == 0 && OpponentHand.Count == 0)
             {
-                ArenaManager.placeCard(cardGO, lane.OpponentSlot);
-                OpponentHand.RemoveCard(cardGO);
+                next = new EndPhase();
+            }
+            else
+            {
+                next = new DrawPhase();
+            }
+            return next;
+        }
+
+        public override bool hasCompleted()
+        {
+            return (ArenaManager.checkPlayerLanesFilled() && ArenaManager.checkOpponentLanesFilled())
+                            || (PlayerHand.Count == 0 && OpponentHand.Count == 0);
+        }
+
+        private void refreshOpponentLane(Lane lane)
+        {
+            if (lane.OpponentCard == null)
+            {
+                PlayingCard card = AI.pickCard(OpponentHand.GetCards());
+                OpponentHand.selectCard(card);
+                GameObject cardGO = OpponentHand.GetSelectedCard();
+                if (lane.setCard(cardGO, Lane.Slot.OPPONENT))
+                {
+                    ArenaManager.placeCard(cardGO, lane.OpponentSlot);
+                    OpponentHand.RemoveCard(cardGO);
+                }
             }
         }
     }

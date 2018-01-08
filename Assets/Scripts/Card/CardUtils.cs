@@ -6,22 +6,22 @@ namespace DakaniLabs.CardLane.Card
 {
     public class CardUtils
     {
-        public static IList<Card> generateCardsForSuit(Suit suit)
+        public static IList<PlayingCard> generateCardsForSuit(Suit suit)
         {
-            IList<Card> cards = new List<Card>();
+            IList<PlayingCard> cards = new List<PlayingCard>();
 
             foreach (Rank rank in Rank.Values)
             {
                 if (rank != Rank.JOKER)
                 {
-                    cards.Add(new Card(rank, suit));
+                    cards.Add(new PlayingCard(rank, suit));
                 }
             }
 
             return cards;
         }
 
-        public static void populateCardLists(List<Card> redList, List<Card> blackList)
+        public static void populateCardLists(List<PlayingCard> redList, List<PlayingCard> blackList)
         {
             redList.AddRange(generateCardsForSuit(Suit.DIAMONDS));
             redList.AddRange(generateCardsForSuit(Suit.HEARTS));
@@ -32,21 +32,21 @@ namespace DakaniLabs.CardLane.Card
             adjustCardList(blackList);
         }
 
-        private static void adjustCardList(List<Card> list)
+        private static void adjustCardList(List<PlayingCard> list)
         {
-            List<Card> toReplace = new List<Card>();
-            foreach (Card card in list)
+            List<PlayingCard> toReplace = new List<PlayingCard>();
+            foreach (PlayingCard card in list)
             {
                 if (card.Rank == Rank.TEN)
                 {
                     toReplace.Add(card);
                 }
             }
-            foreach (Card replace in toReplace)
+            foreach (PlayingCard replace in toReplace)
             {
                 Suit suit = replace.Suit;
                 list.Remove(replace);
-                list.Add(new Card(Rank.JACK, suit));
+                list.Add(new PlayingCard(Rank.JACK, suit));
             }
         }
 

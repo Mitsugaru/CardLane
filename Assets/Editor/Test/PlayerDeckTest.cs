@@ -9,7 +9,7 @@ public class PlayerDeckTest
 
     private PlayerDeck deck;
 
-    private IList<Card> spades;
+    private IList<PlayingCard> spades;
 
     [SetUp]
     public void Init()
@@ -51,7 +51,7 @@ public class PlayerDeckTest
     {
         deck.AddRange(spades);
 
-        Card card = deck.Draw();
+        PlayingCard card = deck.Draw();
 
         Assert.True(spades.Contains(card));
         Assert.False(deck.Deck.Contains(card));
@@ -63,22 +63,22 @@ public class PlayerDeckTest
 
         deck.Draw();
 
-        List<Card> snapshot = new List<Card>();
+        List<PlayingCard> snapshot = new List<PlayingCard>();
         snapshot.AddRange(deck.Deck);
 
         deck.Shuffle();
 
     }
 
-    private IList<Card> GenerateCardsForSuit(Suit suit)
+    private IList<PlayingCard> GenerateCardsForSuit(Suit suit)
     {
-        List<Card> cards = new List<Card>();
+        List<PlayingCard> cards = new List<PlayingCard>();
 
         foreach (Rank rank in Rank.Values)
         {
             if (rank != Rank.JOKER)
             {
-                cards.Add(new Card(rank, suit));
+                cards.Add(new PlayingCard(rank, suit));
             }
         }
 

@@ -1,6 +1,6 @@
 ﻿namespace DakaniLabs.CardLane.Card
 {
-    public class Card
+    public class PlayingCard
     {
 
         private Suit suit;
@@ -23,7 +23,7 @@
             }
         }
 
-        public Card(Rank rank, Suit suit)
+        public PlayingCard(Rank rank, Suit suit)
         {
             this.suit = suit;
             this.rank = rank;
@@ -36,7 +36,7 @@
                 return false;
             }
 
-            Card c = (Card)obj;
+            PlayingCard c = (PlayingCard)obj;
             return suit == c.Suit && rank == c.Rank;
         }
 

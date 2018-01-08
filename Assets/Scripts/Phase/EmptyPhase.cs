@@ -3,19 +3,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EmptyPhase : GamePhase
+namespace DakaniLabs.CardLane.Phase
 {
-    public override void execute()
+    /// <summary>
+    /// Empty placeholder phase
+    /// </summary>
+    public class EmptyPhase : GamePhase
     {
-    }
+        public override void execute()
+        {
+        }
 
-    public override GamePhase getNextPhase()
-    {
-        return this;
-    }
+        public override GamePhase getNextPhase()
+        {
+            return this;
+        }
 
-    public override bool hasCompleted()
-    {
-        return false;
+        public override bool hasCompleted()
+        {
+            return false;
+        }
     }
 }

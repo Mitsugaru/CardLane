@@ -4,52 +4,55 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DrawPhase : GamePhase
+namespace DakaniLabs.CardLane.Phase
 {
-
-    public CardManager CardManager { get; set; }
-
-    public HandManager Hand { get; set; }
-
-    public PlayerDeck Deck { get; set; }
-
-    public DeckScript VisualDeck { get; set; }
-
-    public bool PlayerTurn { get; set; }
-
-    public override void execute()
+    public class DrawPhase : GamePhase
     {
-        if (!hasCompleted())
+
+        public CardManager CardManager { get; set; }
+
+        public HandManager Hand { get; set; }
+
+        public PlayerDeck Deck { get; set; }
+
+        public DeckScript VisualDeck { get; set; }
+
+        public bool PlayerTurn { get; set; }
+
+        public override void execute()
         {
-            Card playerCard = Deck.Draw();
-            if (playerCard != null)
+            if (!hasCompleted())
             {
-                GameObject playerCardGameObject = CardManager.SpawnCard(playerCard);
-                if (playerCardGameObject != null)
+                PlayingCard playerCard = Deck.Draw();
+                if (playerCard != null)
                 {
-                    Hand.AddCard(playerCardGameObject);
-                    VisualDeck.DrawCard();
+                    GameObject playerCardGameObject = CardManager.SpawnCard(playerCard);
+                    if (playerCardGameObject != null)
+                    {
+                        Hand.AddCard(playerCardGameObject);
+                        VisualDeck.DrawCard();
+                    }
                 }
             }
         }
-    }
 
-    public override GamePhase getNextPhase()
-    {
-        GamePhase next = null;
-        if(PlayerTurn)
+        public override GamePhase getNextPhase()
         {
-            next = new LaneSelectionPhase();
+            GamePhase next = null;
+            if (PlayerTurn)
+            {
+                next = new LaneSelectionPhase();
+            }
+            else
+            {
+                next = new AILaneSelectionPhase();
+            }
+            return next;
         }
-        else
-        {
-            next = new AILaneSelectionPhase();
-        }
-        return next;
-    }
 
-    public override bool hasCompleted()
-    {
-        return Hand.Count >= 5 || Deck.Deck.Count == 0;
+        public override bool hasCompleted()
+        {
+            return Hand.Count >= 5 || Deck.Deck.Count == 0;
+        }
     }
 }

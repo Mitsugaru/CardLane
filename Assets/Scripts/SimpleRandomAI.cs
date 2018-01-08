@@ -7,7 +7,7 @@ public class SimpleRandomAI {
 
     private System.Random random = new System.Random();
 
-    public Card pickCard(IList<Card> cards)
+    public PlayingCard pickCard(IList<PlayingCard> cards)
     {
         return cards[random.Next(cards.Count)];
     }

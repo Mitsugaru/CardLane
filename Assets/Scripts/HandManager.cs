@@ -186,9 +186,9 @@ public class HandManager : MonoBehaviour
         selectLapse = 0f;
     }
 
-    public IList<Card> GetCards()
+    public IList<PlayingCard> GetCards()
     {
-        List<Card> cardList = new List<Card>();
+        List<PlayingCard> cardList = new List<PlayingCard>();
 
         foreach (GameObject card in cards)
         {
@@ -295,7 +295,7 @@ public class HandManager : MonoBehaviour
         }
     }
 
-    public void selectCard(Card card)
+    public void selectCard(PlayingCard card)
     {
         foreach (GameObject target in cards)
         {

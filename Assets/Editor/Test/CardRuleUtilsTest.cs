@@ -15,13 +15,13 @@ public class CardRuleUtilsTest
                 continue;
             }
 
-            Card source = new Card(rank, Suit.SPADES);
+            PlayingCard source = new PlayingCard(rank, Suit.SPADES);
 
             foreach (Rank targetRank in Rank.Values)
             {
                 if (!isRankSpecial(targetRank))
                 {
-                    Card target = new Card(targetRank, Suit.SPADES);
+                    PlayingCard target = new PlayingCard(targetRank, Suit.SPADES);
 
                     if (rank > targetRank)
                     {
@@ -45,7 +45,7 @@ public class CardRuleUtilsTest
     {
         foreach (Suit suit in Suit.Values)
         {
-            Card ace = new Card(Rank.ACE, suit);
+            PlayingCard ace = new PlayingCard(Rank.ACE, suit);
 
             foreach (Rank rank in Rank.Values)
             {
@@ -54,7 +54,7 @@ public class CardRuleUtilsTest
                     continue;
                 }
 
-                Card target = new Card(rank, suit);
+                PlayingCard target = new PlayingCard(rank, suit);
 
                 if (rank.Equals(Rank.ACE))
                 {
@@ -83,11 +83,11 @@ public class CardRuleUtilsTest
             }
             else
             {
-                Card source = new Card(rank, Suit.SPADES);
+                PlayingCard source = new PlayingCard(rank, Suit.SPADES);
 
                 foreach (Rank targetRank in Rank.Values)
                 {
-                    Card target = new Card(targetRank, Suit.SPADES);
+                    PlayingCard target = new PlayingCard(targetRank, Suit.SPADES);
 
                     if (rank.Equals(Rank.JOKER) || CardRuleUtils.IsRoyal(targetRank))
                     {
@@ -105,12 +105,12 @@ public class CardRuleUtilsTest
     [Test]
     public void TestJokerRule()
     {
-        Card joker = new Card(Rank.JOKER, Suit.NONE);
+        PlayingCard joker = new PlayingCard(Rank.JOKER, Suit.NONE);
         foreach (Suit suit in Suit.Values)
         {
             foreach (Rank rank in Rank.Values)
             {
-                Card card = new Card(rank, suit);
+                PlayingCard card = new PlayingCard(rank, suit);
 
                 Assert.AreEqual(0, CardRuleUtils.Resolve(joker, card));
             }

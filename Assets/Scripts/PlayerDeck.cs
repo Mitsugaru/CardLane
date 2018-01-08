@@ -9,12 +9,12 @@ using UnityEngine;
 public class PlayerDeck
 {
 
-    private List<Card> cards = new List<Card>();
+    private List<PlayingCard> cards = new List<PlayingCard>();
 
     /// <summary>
     /// List of cards that comprises the deck
     /// </summary>
-    public IList<Card> Cards
+    public IList<PlayingCard> Cards
     {
         get
         {
@@ -25,13 +25,13 @@ public class PlayerDeck
     /// <summary>
     /// Queue of the current deck
     /// </summary>
-    private Queue<Card> inDeck = new Queue<Card>();
+    private Queue<PlayingCard> inDeck = new Queue<PlayingCard>();
 
     /// <summary>
     /// List of cards that are currently in the deck
     /// </summary>
     /// <returns></returns>
-    public IList<Card> Deck
+    public IList<PlayingCard> Deck
     {
         get
         {
@@ -55,7 +55,7 @@ public class PlayerDeck
     /// Adds a card to the deck
     /// </summary>
     /// <param name="card"></param>
-    public void Add(Card card)
+    public void Add(PlayingCard card)
     {
         cards.Add(card);
         inDeck.Enqueue(card);
@@ -66,11 +66,11 @@ public class PlayerDeck
     /// Adds cards to the deck
     /// </summary>
     /// <param name="collection">Collection of cards</param>
-    public void AddRange(ICollection<Card> collection)
+    public void AddRange(ICollection<PlayingCard> collection)
     {
         cards.AddRange(collection);
 
-        List<Card> sum = new List<Card>();
+        List<PlayingCard> sum = new List<PlayingCard>();
         sum.AddRange(collection);
         sum.AddRange(inDeck.ToArray());
         ShuffleWith(sum);
@@ -81,13 +81,13 @@ public class PlayerDeck
     /// Will reshuffle if the deck currently contained it.
     /// </summary>
     /// <param name="card">Card to remove</param>
-    public void Remove(Card card)
+    public void Remove(PlayingCard card)
     {
         cards.Remove(card);
 
         if (inDeck.Contains(card))
         {
-            List<Card> remaining = new List<Card>();
+            List<PlayingCard> remaining = new List<PlayingCard>();
             remaining.AddRange(inDeck.ToArray());
             remaining.Remove(card);
             ShuffleWith(remaining);
@@ -99,15 +99,15 @@ public class PlayerDeck
 	/// Will reshuffle if the deck contained any of the cards.
     /// </summary>
     /// <param name="collection">Cards to remove</param>
-    public void RemoveRange(ICollection<Card> collection)
+    public void RemoveRange(ICollection<PlayingCard> collection)
     {
-        foreach (Card card in collection)
+        foreach (PlayingCard card in collection)
         {
             cards.Remove(card);
         }
 
-        List<Card> remaining = new List<Card>();
-        foreach (Card card in inDeck)
+        List<PlayingCard> remaining = new List<PlayingCard>();
+        foreach (PlayingCard card in inDeck)
         {
             if (!collection.Contains(card))
             {
@@ -141,9 +141,9 @@ public class PlayerDeck
     /// Replace the current deck and shuffle using the given collection
     /// </summary>
     /// <param name="collection">Collection of cards to shuffle as the deck</param>
-    private void ShuffleWith(ICollection<Card> collection)
+    private void ShuffleWith(ICollection<PlayingCard> collection)
     {
-        List<Card> temp = new List<Card>();
+        List<PlayingCard> temp = new List<PlayingCard>();
         temp.AddRange(collection);
         inDeck.Clear();
 
@@ -165,9 +165,9 @@ public class PlayerDeck
     /// Draw a card from the deck
     /// </summary>
     /// <returns>The card that was drawn</returns>
-    public Card Draw()
+    public PlayingCard Draw()
     {
-        Card card = null;
+        PlayingCard card = null;
         if(inDeck.Count > 0)
         {
             card = inDeck.Dequeue();

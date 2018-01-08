@@ -15,7 +15,7 @@
         /// <param name="firstCard">Base card to compare to</param>
         /// <param name="secondCard">Card being compared against</param>
         /// <returns>Comparison result</returns>
-        public static int Resolve(Card firstCard, Card secondCard)
+        public static int Resolve(PlayingCard firstCard, PlayingCard secondCard)
         {
             int result = 0;
 
@@ -57,7 +57,7 @@
         /// </summary>
         /// <param name="targetCard">Card to compare to</param>
         /// <returns>Comparison result</returns>
-        private static int HandleAceLogic(Card targetCard)
+        private static int HandleAceLogic(PlayingCard targetCard)
         {
             int result = 0;
 
@@ -82,7 +82,7 @@
         /// </summary>
         /// <param name="targetCard">Card to compare to</param>
         /// <returns>Comparison result</returns>
-        private static int HandleRoyalLogic(Card targetCard)
+        private static int HandleRoyalLogic(PlayingCard targetCard)
         {
             int result = 0;
 
@@ -103,7 +103,7 @@
         /// </summary>
         /// <param name="card">Card to validate</param>
         /// <returns>True if the Card Rank is a royal card, else false</returns>
-        public static bool IsRoyal(Card card)
+        public static bool IsRoyal(PlayingCard card)
         {
             return IsRoyal(card.Rank);
         }

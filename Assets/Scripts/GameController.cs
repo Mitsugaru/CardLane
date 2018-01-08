@@ -1,4 +1,5 @@
 ﻿using DakaniLabs.CardLane.Card;
+using DakaniLabs.CardLane.Phase;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -208,8 +209,8 @@ public class GameController : MonoBehaviour
         }
 
         //Generate card lists
-        List<Card> playerCards = new List<Card>();
-        List<Card> opponentCards = new List<Card>();
+        List<PlayingCard> playerCards = new List<PlayingCard>();
+        List<PlayingCard> opponentCards = new List<PlayingCard>();
 
         if (playerFirst)
         {
@@ -223,8 +224,8 @@ public class GameController : MonoBehaviour
         // check if joker rule
         if (addJokers)
         {
-            playerCards.Add(new Card(Rank.JOKER, Suit.NONE));
-            opponentCards.Add(new Card(Rank.JOKER, Suit.NONE));
+            playerCards.Add(new PlayingCard(Rank.JOKER, Suit.NONE));
+            opponentCards.Add(new PlayingCard(Rank.JOKER, Suit.NONE));
         }
 
         playerDeck.AddRange(playerCards);
@@ -253,7 +254,7 @@ public class GameController : MonoBehaviour
 
     private IEnumerator playerHandDraw(float delay)
     {
-        Card playerCard = playerDeck.Draw();
+        PlayingCard playerCard = playerDeck.Draw();
         if (playerCard != null)
         {
             GameObject playerCardGameObject = cardManager.SpawnCard(playerCard);
@@ -268,7 +269,7 @@ public class GameController : MonoBehaviour
 
     private IEnumerator opponentHandDraw(float delay)
     {
-        Card opponentCard = opponentDeck.Draw();
+        PlayingCard opponentCard = opponentDeck.Draw();
         if (opponentCard != null)
         {
             GameObject opponentCardGameObject = cardManager.SpawnCard(opponentCard);
@@ -330,7 +331,7 @@ public class GameController : MonoBehaviour
     {
         if (lane.OpponentCard == null)
         {
-            Card card = ai.pickCard(opponentHand.GetCards());
+            PlayingCard card = ai.pickCard(opponentHand.GetCards());
             opponentHand.selectCard(card);
             GameObject cardGO = opponentHand.GetSelectedCard();
             if (lane.setCard(cardGO, Lane.Slot.OPPONENT))

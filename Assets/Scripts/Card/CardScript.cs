@@ -7,7 +7,7 @@ namespace DakaniLabs.CardLane.Card
     public class CardScript : MonoBehaviour
     {
 
-        public Card Card { get; set; }
+        public PlayingCard Card { get; set; }
 
         // Use this for initialization
         void Start()

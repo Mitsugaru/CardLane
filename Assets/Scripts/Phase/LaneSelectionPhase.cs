@@ -4,86 +4,89 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LaneSelectionPhase : GamePhase
+namespace DakaniLabs.CardLane.Phase
 {
-    public Lane SelectedLane { get; set; }
-
-    private float selectionTime = 0;
-
-    private bool mouseDown = false;
-
-    public override void execute()
+    public class LaneSelectionPhase : GamePhase
     {
-        // make a lane selection
-        GameObject laneGo = null;
-        bool hadInput = false;
-        // Look for all fingers
-        for (int i = 0; i < Input.touchCount; i++)
-        {
-            Touch touch = Input.GetTouch(i);
-            Ray ray = Camera.main.ScreenPointToRay(touch.position);
+        public Lane SelectedLane { get; set; }
 
-            if (HitUtils.detectHitLane(ray, out laneGo))
+        private float selectionTime = 0;
+
+        private bool mouseDown = false;
+
+        public override void execute()
+        {
+            // make a lane selection
+            GameObject laneGo = null;
+            bool hadInput = false;
+            // Look for all fingers
+            for (int i = 0; i < Input.touchCount; i++)
             {
-                selectionTime += Time.deltaTime;
-                hadInput = true;
+                Touch touch = Input.GetTouch(i);
+                Ray ray = Camera.main.ScreenPointToRay(touch.position);
+
+                if (HitUtils.detectHitLane(ray, out laneGo))
+                {
+                    selectionTime += Time.deltaTime;
+                    hadInput = true;
+                }
+            }
+
+            if (!mouseDown && Input.touchCount == 0)
+            {
+                //Touch was released, stop counting
+                selectionTime = 0f;
+            }
+            if (Input.GetMouseButtonUp(0))
+            {
+                selectionTime = 0f;
+                mouseDown = false;
+            }
+            if (Input.GetMouseButtonDown(0))
+            {
+                mouseDown = true;
+            }
+            if (mouseDown && Input.GetMouseButton(0))
+            {
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+                if (HitUtils.detectHitLane(ray, out laneGo))
+                {
+                    selectionTime += Time.deltaTime;
+                    hadInput = true;
+                }
+            }
+
+            if (hadInput && selectionTime >= 1f)
+            {
+                selectionTime = 0f;
+                mouseDown = false;
+
+                SelectedLane = laneGo.GetComponent<Lane>();
+                checkReveal();
             }
         }
 
-        if (!mouseDown && Input.touchCount == 0)
+        public override GamePhase getNextPhase()
         {
-            //Touch was released, stop counting
-            selectionTime = 0f;
+            return new RevealPhase();
         }
-        if (Input.GetMouseButtonUp(0))
-        {
-            selectionTime = 0f;
-            mouseDown = false;
-        }
-        if (Input.GetMouseButtonDown(0))
-        {
-            mouseDown = true;
-        }
-        if (mouseDown && Input.GetMouseButton(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            if (HitUtils.detectHitLane(ray, out laneGo))
+        public override bool hasCompleted()
+        {
+            return SelectedLane != null
+                    && SelectedLane.PlayerCard != null
+                    && SelectedLane.OpponentCard != null;
+        }
+
+        protected void checkReveal()
+        {
+            if (hasCompleted())
             {
-                selectionTime += Time.deltaTime;
-                hadInput = true;
+                // animate the cards
+                CardUtils.animateCard(SelectedLane.PlayerCard);
+                CardUtils.animateCard(SelectedLane.OpponentCard);
             }
-        }
-
-        if (hadInput && selectionTime >= 1f)
-        {
-            selectionTime = 0f;
-            mouseDown = false;
-
-            SelectedLane = laneGo.GetComponent<Lane>();
-            checkReveal();
-        }
-    }
-
-    public override GamePhase getNextPhase()
-    {
-        return new RevealPhase();
-    }
-
-    public override bool hasCompleted()
-    {
-        return SelectedLane != null
-                && SelectedLane.PlayerCard != null
-                && SelectedLane.OpponentCard != null;
-    }
-
-    protected void checkReveal()
-    {
-        if (hasCompleted())
-        {
-            // animate the cards
-            CardUtils.animateCard(SelectedLane.PlayerCard);
-            CardUtils.animateCard(SelectedLane.OpponentCard);
         }
     }
 }

@@ -25,7 +25,7 @@ public class CardManager : MonoBehaviour
         }
     }
 
-    private Dictionary<Card, GameObject> cards = new Dictionary<Card, GameObject>();
+    private Dictionary<PlayingCard, GameObject> cards = new Dictionary<PlayingCard, GameObject>();
 
     private System.Random random = new System.Random();
 
@@ -36,7 +36,7 @@ public class CardManager : MonoBehaviour
         {
             foreach (Rank rank in Rank.Values)
             {
-                Card card = new Card(rank, suit);
+                PlayingCard card = new PlayingCard(rank, suit);
 
                 foreach (CardIDPair id in ids)
                 {
@@ -57,7 +57,7 @@ public class CardManager : MonoBehaviour
 
     }
 
-    public GameObject SpawnCard(Card card)
+    public GameObject SpawnCard(PlayingCard card)
     {
         GameObject spawned = null;
 
@@ -75,8 +75,8 @@ public class CardManager : MonoBehaviour
     {
         GameObject spawned = null;
 
-        List<Card> keys = new List<Card>(cards.Keys);
-        Card chosen = keys[random.Next(keys.Count)];
+        List<PlayingCard> keys = new List<PlayingCard>(cards.Keys);
+        PlayingCard chosen = keys[random.Next(keys.Count)];
         GameObject goRef = null;
         if (cards.TryGetValue(chosen, out goRef))
         {
@@ -88,7 +88,7 @@ public class CardManager : MonoBehaviour
         return spawned;
     }
 
-    private void configureCardComponents(GameObject go, Card card)
+    private void configureCardComponents(GameObject go, PlayingCard card)
     {
         CardScript script = go.AddComponent<CardScript>();
         script.Card = card;
